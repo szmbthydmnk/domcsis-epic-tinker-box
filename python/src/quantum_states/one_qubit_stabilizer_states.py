@@ -6,6 +6,7 @@ def one_qubit_stabilizer_state(identifier: str) -> np.ndarray:
     """
     
     """
+    asdasdasdasd
     
     if not isinstance(id, str):
         raise TypeError(f"identifier must be of type string, got {type(identifier).__name__}")
