@@ -28,11 +28,9 @@ jobs:
             --json \
             --out=cloc.json
 
-          python_blank=$(jq '.Python.blank // 0' cloc.json)
           python_comment=$(jq '.Python.comment // 0' cloc.json)
           python_code=$(jq '.Python.code // 0' cloc.json)
 
-          julia_blank=$(jq '.Julia.blank // 0' cloc.json)
           julia_comment=$(jq '.Julia.comment // 0' cloc.json)
           julia_code=$(jq '.Julia.code // 0' cloc.json)
 
@@ -65,5 +63,4 @@ jobs:
           sed -i "s|<!-- JULIA_METRIC -->.*<!-- /JULIA_METRIC -->|<!-- JULIA_METRIC -->${julia_metric}<!-- /JULIA_METRIC -->|" README.md
 
       - name: Show README diff
-        run: |
-          git diff -- README.md
+        run: git diff -- README.md
