@@ -39,4 +39,4 @@ jobs:
 
             - name: Run mypy
               run: |
-                mypy python/src
+                mypy --strict python/src
