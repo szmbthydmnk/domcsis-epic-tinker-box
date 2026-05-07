@@ -8,6 +8,6 @@ This should also be a playground for myself to learn and grow as a programmer.
 --- 
 ## Metrics
 
-- Python: <!-- PYTHON_METRIC -->pending<!-- /PYTHON_METRIC -->
-- Julia: <!-- JULIA_METRIC -->pending<!-- /JULIA_METRIC -->
+- Python: <!-- PYTHON_METRIC -->28 LOC, code share = 49.1%<!-- /PYTHON_METRIC -->
+- Julia: <!-- JULIA_METRIC -->2 LOC, code share = 100.0%<!-- /JULIA_METRIC -->
 ---
