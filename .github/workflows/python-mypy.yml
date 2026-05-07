@@ -1,0 +1,42 @@
+name: python mypy
+
+on:
+    workflow_dispatch: 
+
+    push:
+        branches: [main]
+        path:
+            - '**/*.py'
+            - 'pyproject.toml'
+            - 'mypy.ini'
+            - '.github/workflows/python-mypy.yml'
+    
+    pull_request: 
+        branches: [main]
+        paths:
+            - '**/*.py'
+            - 'pyproject.toml'
+            - 'mypy.ini'
+            - '.github/workflows/python-mypy.yml'
+
+jobs:
+    mypy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v6
+              with:
+                python-version: '3.11'
+
+            - name: Install mypy
+              run: |
+                python -m pip install --upgrade pip
+                pip install mypy
+
+            - name: Run mypy
+              run: |
+                mypy python/src
