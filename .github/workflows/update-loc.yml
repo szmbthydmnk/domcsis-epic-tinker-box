@@ -1,0 +1,24 @@
+name: LOC 
+
+on: 
+    workflow_dispatch: 
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    count-loc:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Install cloc
+          run: sudo apt-get update && sudo apt-get install -y cloc
+
+        - name: Count Python and Julia LOC
+          run: |
+            echo "Running cloc for Python and Julia only..."
+            cloc . --include-lang=Python,Julia
