@@ -51,17 +51,19 @@ jobs:
             julia_code_pct=$(awk "BEGIN { printf \"%.1f%%\", 100 * $julia_code / $julia_total_nonblank }")
           fi
 
-          echo "python_blank=$python_blank" >> "$GITHUB_OUTPUT"
-          echo "python_comment=$python_comment" >> "$GITHUB_OUTPUT"
           echo "python_code=$python_code" >> "$GITHUB_OUTPUT"
           echo "python_code_pct=$python_code_pct" >> "$GITHUB_OUTPUT"
-
-          echo "julia_blank=$julia_blank" >> "$GITHUB_OUTPUT"
-          echo "julia_comment=$julia_comment" >> "$GITHUB_OUTPUT"
           echo "julia_code=$julia_code" >> "$GITHUB_OUTPUT"
           echo "julia_code_pct=$julia_code_pct" >> "$GITHUB_OUTPUT"
 
-      - name: Print summary
+      - name: Update README metrics
         run: |
-          echo "Python: ${{ steps.loc.outputs.python_code }} LOC, code share = ${{ steps.loc.outputs.python_code_pct }}"
-          echo "Julia:  ${{ steps.loc.outputs.julia_code }} LOC, code share = ${{ steps.loc.outputs.julia_code_pct }}"
+          python_metric="${{ steps.loc.outputs.python_code }} LOC, code share = ${{ steps.loc.outputs.python_code_pct }}"
+          julia_metric="${{ steps.loc.outputs.julia_code }} LOC, code share = ${{ steps.loc.outputs.julia_code_pct }}"
+
+          sed -i "s|<!-- PYTHON_METRIC -->.*<!-- /PYTHON_METRIC -->|<!-- PYTHON_METRIC -->${python_metric}<!-- /PYTHON_METRIC -->|" README.md
+          sed -i "s|<!-- JULIA_METRIC -->.*<!-- /JULIA_METRIC -->|<!-- JULIA_METRIC -->${julia_metric}<!-- /JULIA_METRIC -->|" README.md
+
+      - name: Show README diff
+        run: |
+          git diff -- README.md
