@@ -1,71 +1,67 @@
-name: LOC 
+name: LOC
 
-on: 
-    workflow_dispatch: 
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-    count-loc:
-        runs-on: ubuntu-latest
+  count-loc:
+    runs-on: ubuntu-latest
 
-        steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        - name: Install cloc and jq
-          run: sudo apt-get update && sudo apt-get install -y cloc jq
+      - name: Install cloc and jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cloc jq
 
-        - name: Count Python and Julia LOC and extract data
-          id: loc
-          run: |
-            cloc . \
-              --include-lang=Python,Julia \
-              --json \
-              --out=cloc.json
-            
-            python_blank=$(jq '.Python.blank // 0' cloc.json)
-            python_comment=$(jq '.Python.comment // 0' cloc.json)
-            python_code=$(jq '.Python.code // 0' cloc.json)
-            
-            julia_blank=$(jq '.Julia.blank // 0' cloc.json)
-            julia_comment=$(jq '.Julia.comment // 0' cloc.json)
-            julia_code=$(jq '.Julia.code // 0' cloc.json)
-            
-            if [ "$python_comment" -eq 0 ]; then
-              python_code_comment_ratio="N/A"
-            else
-              python_code_comment_ratio=$(awk "BEGIN { printf \"%.3f\", $python_code / $python_comment }")
-            fi
-            
-            if [ "$julia_comment" -eq 0 ]; then
-              julia_code_comment_ratio="N/A"
-            else
-              julia_code_comment_ratio=$(awk "BEGIN { printf \"%.3f\", $julia_code / $julia_comment }")
-            fi
-            
-            echo "python_blank=$python_blank" >> "$GITHUB_OUTPUT"
-            echo "python_comment=$python_comment" >> "$GITHUB_OUTPUT"
-            echo "python_code=$python_code" >> "$GITHUB_OUTPUT"
-            echo "python_code_comment_ratio=$python_code_comment_ratio" >> "$GITHUB_OUTPUT"
-            
-            echo "julia_blank=$julia_blank" >> "$GITHUB_OUTPUT"
-            echo "julia_comment=$julia_comment" >> "$GITHUB_OUTPUT"
-            echo "julia_code=$julia_code" >> "$GITHUB_OUTPUT"
-            echo "julia_code_comment_ratio=$julia_code_comment_ratio" >> "$GITHUB_OUTPUT"
+      - name: Extract LOC stats
+        id: loc
+        run: |
+          cloc . \
+            --include-lang=Python,Julia \
+            --json \
+            --out=cloc.json
 
-        - name: Print summary
-          run: |
-            echo "Python:"
-            echo "  blank lines   = ${{ steps.loc.outputs.python_blank }}"
-            echo "  comment lines = ${{ steps.loc.outputs.python_comment }}"
-            echo "  code lines    = ${{ steps.loc.outputs.python_code }}"
-            echo "  code/comment  = ${{ steps.loc.outputs.python_code_comment_ratio }}"
+          python_blank=$(jq '.Python.blank // 0' cloc.json)
+          python_comment=$(jq '.Python.comment // 0' cloc.json)
+          python_code=$(jq '.Python.code // 0' cloc.json)
 
-            echo "Julia:"
-            echo "  blank lines   = ${{ steps.loc.outputs.julia_blank }}"
-            echo "  comment lines = ${{ steps.loc.outputs.julia_comment }}"
-            echo "  code lines    = ${{ steps.loc.outputs.julia_code }}"
-            echo "  code/comment  = ${{ steps.loc.outputs.julia_code_comment_ratio }}"
+          julia_blank=$(jq '.Julia.blank // 0' cloc.json)
+          julia_comment=$(jq '.Julia.comment // 0' cloc.json)
+          julia_code=$(jq '.Julia.code // 0' cloc.json)
+
+          python_total_nonblank=$((python_code + python_comment))
+          julia_total_nonblank=$((julia_code + julia_comment))
+
+          if [ "$python_total_nonblank" -eq 0 ]; then
+            python_code_pct="N/A"
+          else
+            python_code_pct=$(awk "BEGIN { printf \"%.1f%%\", 100 * $python_code / $python_total_nonblank }")
+          fi
+
+          if [ "$julia_total_nonblank" -eq 0 ]; then
+            julia_code_pct="N/A"
+          else
+            julia_code_pct=$(awk "BEGIN { printf \"%.1f%%\", 100 * $julia_code / $julia_total_nonblank }")
+          fi
+
+          echo "python_blank=$python_blank" >> "$GITHUB_OUTPUT"
+          echo "python_comment=$python_comment" >> "$GITHUB_OUTPUT"
+          echo "python_code=$python_code" >> "$GITHUB_OUTPUT"
+          echo "python_code_pct=$python_code_pct" >> "$GITHUB_OUTPUT"
+
+          echo "julia_blank=$julia_blank" >> "$GITHUB_OUTPUT"
+          echo "julia_comment=$julia_comment" >> "$GITHUB_OUTPUT"
+          echo "julia_code=$julia_code" >> "$GITHUB_OUTPUT"
+          echo "julia_code_pct=$julia_code_pct" >> "$GITHUB_OUTPUT"
+
+      - name: Print summary
+        run: |
+          echo "Python: ${{ steps.loc.outputs.python_code }} LOC, code share = ${{ steps.loc.outputs.python_code_pct }}"
+          echo "Julia:  ${{ steps.loc.outputs.julia_code }} LOC, code share = ${{ steps.loc.outputs.julia_code_pct }}"
