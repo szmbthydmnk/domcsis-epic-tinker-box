@@ -1,7 +1,7 @@
 [![python mypy](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-mypy.yml/badge.svg?branch=main&event=push)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-mypy.yml)
 [![Python Ruff](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-ruff.yml/badge.svg?branch=main&event=push)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-ruff.yml)
 
-# domcsis-epic-tinker-box
+# Domcsi's Epic Tinker Box
 Hello stranger!
 
 Domcsi's Epic Tinker Box is my little repository of python and Julia libraries filled (gradually) with codes and rutines that I use throughout my coding, scientific and researching journey.
