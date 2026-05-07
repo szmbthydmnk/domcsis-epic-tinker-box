@@ -10,10 +10,14 @@ on:
 jobs:
   count-loc:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Install cloc and jq
         run: |
@@ -64,3 +68,18 @@ jobs:
 
       - name: Show README diff
         run: git diff -- README.md
+
+      - name: Commit and push README
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "No README changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add README.md
+          git commit -m "Update README metrics [skip ci]"
+          git push
