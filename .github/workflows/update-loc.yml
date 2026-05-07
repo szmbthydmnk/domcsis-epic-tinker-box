@@ -4,8 +4,27 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths:
+      - 'python/**'
+      - 'julia/**'
+      - '**/*.py'
+      - '**/*.jl'
+      - 'pyproject.toml'
+      - 'Project.toml'
+      - 'Manifest.toml'
+      - '.github/workflows/loc.yml'
+
   pull_request:
     branches: [main]
+    paths:
+      - 'python/**'
+      - 'julia/**'
+      - '**/*.py'
+      - '**/*.jl'
+      - 'pyproject.toml'
+      - 'Project.toml'
+      - 'Manifest.toml'
+      - '.github/workflows/loc.yml'
 
 jobs:
   count-loc:
