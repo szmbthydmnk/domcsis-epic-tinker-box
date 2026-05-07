@@ -1,6 +1,6 @@
 # This code is part of...
 
-# Last updated: 2026.05.07
+# Last updated: 2026.05.08
 
 
 from scipy.sparse import identity, csr_matrix       # Sparse identity matrix; general sparse array
@@ -11,11 +11,11 @@ from scipy.sparse import identity, csr_matrix       # Sparse identity matrix; ge
 # Defining the Pauli matrices 
 _PAULI_I = identity(2, dtype=complex, format="csr")
 _PAULI_X = csr_matrix([[0, 1], [1, 0]], dtype=complex)
-_PAULI_Y = csr_matrix([[0, -1j], [1j, 0]], dtype=complex)
+_PAULI_Y = csr_matrix([[0, 0 - 1j], [0 + 1j, 0]], dtype=complex)
 _PAULI_Z = csr_matrix([[1, 0], [0, -1]], dtype=complex)
 
 # A "single-qubit" Pauli generator wrapper for the above defined Pauli matrices.
-def pauli_matrix(which: str | int):
+def pauli_matrix(which: str | int) -> csr_matrix:
     """
     Return a single-qubit Pauli matrix in sparse CSR format.
     Supported labels:
