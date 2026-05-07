@@ -8,6 +8,7 @@ This should also be a playground for myself to learn and grow as a programmer.
 --- 
 ## Metrics
 
+
 Now this is not important, and I do not think that it is a good idea to attribute quality, effort or productiveness to the following metrix, but it is like the first, easy-peasy Github Action that one can set up, so here it is:
 
 ```
@@ -16,6 +17,8 @@ LOCo is _lines of comments_
 code share is _LOC/(LOC + LOCo)_
 ```
 
-- Python: <!-- PYTHON_METRIC -->pending<!-- /PYTHON_METRIC -->
-- Julia: <!-- JULIA_METRIC -->pending<!-- /JULIA_METRIC -->
+
+- Python: <!-- PYTHON_METRIC -->28 LOC, code share = 49.1%<!-- /PYTHON_METRIC -->
+- Julia: <!-- JULIA_METRIC -->2 LOC, code share = 100.0%<!-- /JULIA_METRIC -->
+
 ---
