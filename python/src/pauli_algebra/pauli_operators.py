@@ -2,7 +2,7 @@
 
 # Last updated: 2026.05.08
 
-
+from itertools import product
 from scipy.sparse import identity, csr_matrix       # Sparse identity matrix; general sparse array
             # There is a difference between csc and csr matrix:
                 # One is compressed through rows the other through columns, for Paulis there is no different.
@@ -48,3 +48,26 @@ def pauli_matrix(which: str | int) -> csr_matrix:
 
     raise ValueError(f"Unsupported Pauli label: '{which}'")
 
+
+def generate_all_pauli_strings(no_qubits: int) -> list[str]:
+    """
+    Returns a list with the N-qubit Pauli strings as strings.
+
+    Args:
+        no_qubits: int
+            number of qubits.
+    
+    Returns:
+        list[str]
+
+    Raises:
+        ValueError:
+            If the number of qubits is not positive or not an integer.
+    """
+    if no_qubits <= 0:
+        raise ValueError(f"Number of qubits must be positive, got '{no_qubits}'")
+    
+    _PAULI_LETTERS = ["I", "X", "Y", "Z"]
+
+    return ["".join(s) for s in product(_PAULI_LETTERS, repeat = no_qubits)]
+    
