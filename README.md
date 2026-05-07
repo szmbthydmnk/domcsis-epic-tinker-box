@@ -12,9 +12,9 @@ This should also be a playground for myself to learn and grow as a programmer.
 Now this is not important, and I do not think that it is a good idea to attribute quality, effort or productiveness to the following metrix, but it is like the first, easy-peasy Github Action that one can set up, so here it is:
 
 ```
-LOC is _lines of code_
-LOCo is _lines of comments_
-code share is _LOC/(LOC + LOCo)_
+LOC is lines of code
+LOCo is lines of comments
+code share is LOC/(LOC + LOCo)
 ```
 
 - Python: <!-- PYTHON_METRIC -->28 LOC, code share = 49.1%<!-- /PYTHON_METRIC -->
