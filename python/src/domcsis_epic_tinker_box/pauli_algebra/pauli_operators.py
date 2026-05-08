@@ -1,6 +1,13 @@
-# This code is part of...
+"""
+This file handles Pauli operator and Pauli string generation and manipulation.
 
-# Last updated: 2026.05.08
+public functions:
+- pauli_matrix
+- generate_all_pauli_strings
+
+private functions:
+
+"""
 
 from itertools import product
 from scipy.sparse import identity, csr_matrix       # Sparse identity matrix; general sparse array
