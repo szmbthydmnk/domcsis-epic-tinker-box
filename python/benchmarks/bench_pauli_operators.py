@@ -54,13 +54,28 @@ from pathlib import Path
 from typing import Any
 
 # ---------------------------------------------------------------------------
-# Make the package importable when running this file directly (Layer 2 / 3)
-# without requiring the package to be installed. Adds python/src to sys.path.
+# sys.path manipulation is necessary here to make the package importable when
+# this file is run directly as a script (Layer 2 / 3), without requiring the
+# package to be installed via pip.
+#
+# File location:  python/benchmarks/bench_pauli_operators.py
+# .parent       → python/benchmarks/
+# .parent.parent → python/
+# .parent.parent.parent → repo root
+#
+# We add python/src to sys.path so Python can find domcsis_epic_tinker_box.
+#
+# The # noqa: E402 comments below suppress ruff's E402 warning
+# ("module level import not at top of file") for the package imports that
+# follow the sys.path modification. This is a well-known and accepted
+# exception — the path modification MUST precede the import it enables.
+# The per-file ignore in pyproject.toml [tool.ruff.lint.per-file-ignores]
+# provides the same suppression project-wide for this file.
 # ---------------------------------------------------------------------------
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT / "python" / "src"))
 
-from domcsis_epic_tinker_box.pauli_algebra import (
+from domcsis_epic_tinker_box.pauli_algebra import (  # noqa: E402
     generate_all_pauli_strings,
     generate_pauli_operators,
 )
@@ -249,7 +264,7 @@ def _run_scaling_study(max_n: int = 5, save_csv: bool = False) -> None:
     print("=" * 65 + "\n")
 
     if save_csv:
-        csv_path = _REPO_ROOT / "benchmarks" / "results" / "scaling.csv"
+        csv_path = _REPO_ROOT / "python" / "benchmarks" / "results" / "scaling.csv"
         csv_path.parent.mkdir(parents=True, exist_ok=True)
         with open(csv_path, "w") as f:
             f.write("n_qubits,n_operators,matrix_size,time_ms,peak_mem_kb\n")
@@ -301,14 +316,19 @@ def _run_release_benchmark() -> None:
     Saves results to benchmarks/results/release_<version>.json.
     """
     try:
-        import pyperf  # type: ignore[import-untyped]
+        import pyperf  # type: ignore[import-untyped]  # noqa: PLC0415
     except ImportError:
         print("pyperf is not installed. Run: pip install pyperf")
         sys.exit(1)
 
-    from domcsis_epic_tinker_box import __version__  # type: ignore[attr-defined]
+    try:
+        from domcsis_epic_tinker_box import __version__  # type: ignore[attr-defined]  # noqa: PLC0415
+        version_tag = f"v{__version__}"
+    except ImportError:
+        version_tag = "unknown"
+
     output_path = (
-        _REPO_ROOT / "benchmarks" / "results" / f"release_v{__version__}.json"
+        _REPO_ROOT / "python" / "benchmarks" / "results" / f"release_{version_tag}.json"
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 

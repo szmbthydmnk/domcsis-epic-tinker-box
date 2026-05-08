@@ -80,15 +80,18 @@ dependencies = [
 # It installs everything in one step: the package itself, its runtime
 # dependencies, and all the dev tools.
 #
-# "pytest"      — the test runner used in CI and locally.
-# "mypy"        — static type checker. Also configured in [tool.mypy] below.
-# "ruff"        — linter and formatter. Used in the python-ruff.yml workflow.
-# "scipy-stubs" — type stubs for scipy, required by mypy to resolve
-#                 scipy.sparse and other scipy imports without errors.
+# "pytest"           — the test runner used in CI and locally.
+# "pytest-benchmark" — Layer 1 micro-benchmark fixture for pytest.
+# "pyperf"           — Layer 3 statistical release benchmarking.
+# "mypy"             — static type checker.
+# "ruff"             — linter and formatter.
+# "scipy-stubs"      — type stubs for scipy, required by mypy.
 # -----------------------------------------------------------------------------
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "pytest-benchmark",
+    "pyperf",
     "mypy",
     "ruff",
     "scipy-stubs",
@@ -139,3 +142,21 @@ where = ["src"]
 [tool.mypy]
 python_version = "3.14"
 warn_unused_configs = true
+
+
+# -----------------------------------------------------------------------------
+# RUFF CONFIGURATION
+# -----------------------------------------------------------------------------
+# ruff is the linter and formatter. The [tool.ruff.lint.per-file-ignores]
+# block suppresses specific rules for files where they are intentionally
+# violated.
+#
+# benchmarks/bench_pauli_operators.py: E402
+#   E402 = "module level import not at top of file".
+#   The benchmark file must insert python/src into sys.path before importing
+#   the package, so the package import necessarily comes after sys.path.insert.
+#   This is a legitimate and well-known exception to E402 — the # noqa comment
+#   on the import line and this per-file ignore together make the intent clear.
+# -----------------------------------------------------------------------------
+[tool.ruff.lint.per-file-ignores]
+"benchmarks/bench_pauli_operators.py" = ["E402"]
