@@ -1,3 +1,4 @@
+[![Python pytest](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-pytest.yml/badge.svg)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-pytest.yml)
 [![python mypy](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-mypy.yml/badge.svg?branch=main&event=push)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-mypy.yml)
 [![Python Ruff](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-ruff.yml/badge.svg?branch=main&event=push)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-ruff.yml)
 
