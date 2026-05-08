@@ -1,3 +1,4 @@
+[![Python pytest](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-pytest.yml/badge.svg)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-pytest.yml)
 [![python mypy](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-mypy.yml/badge.svg?branch=main&event=push)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-mypy.yml)
 [![Python Ruff](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-ruff.yml/badge.svg?branch=main&event=push)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-ruff.yml)
 
@@ -24,7 +25,7 @@ LOCo is lines of comments
 code share is LOC/(LOC + LOCo)
 ```
 
-- Python: <!-- PYTHON_METRIC -->29 LOC, code share = 46.0%<!-- /PYTHON_METRIC -->
+- Python: <!-- PYTHON_METRIC -->43 LOC, code share = 55.8%<!-- /PYTHON_METRIC -->
 - Julia: <!-- JULIA_METRIC -->2 LOC, code share = 100.0%<!-- /JULIA_METRIC -->
 
 ---
