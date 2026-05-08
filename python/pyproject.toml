@@ -57,7 +57,7 @@ build-backend = "setuptools.build_meta"
 name = "domcsis-epic-tinker-box"
 version = "0.1.2"
 description = "Domcsi's Epic Tinker Box - a collection of Python utilities for scientific and quantum computing research."
-readme = "../README.md"
+readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [{ name = "Dominik Szombathy", email = "szmbthy.dmnk@gmail.com"}]
