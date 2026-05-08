@@ -137,3 +137,16 @@ jobs:
           git add README.md
           git commit -m "Update README metrics [skip ci]"
           git push
+      - name: Copy README into python/
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: ${{ github.workspace }}
+        run: |
+          cp README.md python/README.md
+          if git diff --quiet -- python/README.md; then
+            echo "No python/README.md changes to commit."
+            exit 0
+          fi
+
+          git add python/README.md
+          git commit -m "Sync python/README.md from root [skip ci]"
+          git push
