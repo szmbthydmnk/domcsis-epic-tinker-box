@@ -77,13 +77,13 @@ def test_integer_labels_match_string() -> None:
 def test_paulis_are_hermitian() -> None:
     for label in ("X", "Y", "Z"):
         m = pauli_matrix(label).toarray()
-        assert np.allclose(m, m.conj().T)
+        assert np.allclose(m, m.conj().T, atol=1e-14)
 
 
 def test_paulis_square_to_identity() -> None:
     for label in ("X", "Y", "Z"):
         m = pauli_matrix(label).toarray()
-        assert np.allclose(m @ m, np.eye(2))
+        assert np.allclose(m @ m, np.eye(2), atol=1e-14)
 
 
 def test_invalid_string_raises() -> None:
