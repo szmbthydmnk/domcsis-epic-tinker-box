@@ -2,14 +2,15 @@ name: LOC
 
 on:
   workflow_dispatch:
+
   push:
     branches: [main]
     paths:
-      - 'python/**'
-      - 'julia/**'
+      - 'python/**/*.py'
+      - 'julia/**/*.jl'
       - '**/*.py'
       - '**/*.jl'
-      - 'pyproject.toml'
+      - 'python/pyproject.toml'
       - 'Project.toml'
       - 'Manifest.toml'
       - '.github/workflows/loc.yml'
@@ -17,11 +18,11 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'python/**'
-      - 'julia/**'
+      - 'python/**/*.py'
+      - 'julia/**/*.jl'
       - '**/*.py'
       - '**/*.jl'
-      - 'pyproject.toml'
+      - 'python/pyproject.toml'
       - 'Project.toml'
       - 'Manifest.toml'
       - '.github/workflows/loc.yml'
@@ -32,6 +33,10 @@ jobs:
     permissions:
       contents: write
 
+    defaults:
+      run:
+        working-directory: python
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,12 +44,14 @@ jobs:
           persist-credentials: true
 
       - name: Install cloc and jq
+        working-directory: ${{ github.workspace }}
         run: |
           sudo apt-get update
           sudo apt-get install -y cloc jq
 
       - name: Extract LOC stats
         id: loc
+        working-directory: ${{ github.workspace }}
         run: |
           cloc . \
             --include-lang=Python,Julia \
@@ -77,19 +84,47 @@ jobs:
           echo "julia_code=$julia_code" >> "$GITHUB_OUTPUT"
           echo "julia_code_pct=$julia_code_pct" >> "$GITHUB_OUTPUT"
 
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install package and dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Count Python tests
+        id: tests
+        run: |
+          test_count=$(python -m pytest tests/ --collect-only -q 2>/dev/null \
+            | grep -E "^[0-9]+ test" \
+            | grep -oE "^[0-9]+")
+
+          if [ -z "$test_count" ]; then
+            test_count=0
+          fi
+
+          echo "python_tests=$test_count" >> "$GITHUB_OUTPUT"
+
       - name: Update README metrics
+        working-directory: ${{ github.workspace }}
         run: |
           python_metric="${{ steps.loc.outputs.python_code }} LOC, code share = ${{ steps.loc.outputs.python_code_pct }}"
           julia_metric="${{ steps.loc.outputs.julia_code }} LOC, code share = ${{ steps.loc.outputs.julia_code_pct }}"
+          tests_metric="${{ steps.tests.outputs.python_tests }} tests"
 
           sed -i "s|<!-- PYTHON_METRIC -->.*<!-- /PYTHON_METRIC -->|<!-- PYTHON_METRIC -->${python_metric}<!-- /PYTHON_METRIC -->|" README.md
           sed -i "s|<!-- JULIA_METRIC -->.*<!-- /JULIA_METRIC -->|<!-- JULIA_METRIC -->${julia_metric}<!-- /JULIA_METRIC -->|" README.md
+          sed -i "s|<!-- PYTHON_TESTS -->.*<!-- /PYTHON_TESTS -->|<!-- PYTHON_TESTS -->${tests_metric}<!-- /PYTHON_TESTS -->|" README.md
 
       - name: Show README diff
+        working-directory: ${{ github.workspace }}
         run: git diff -- README.md
 
       - name: Commit and push README
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: ${{ github.workspace }}
         run: |
           if git diff --quiet -- README.md; then
             echo "No README changes to commit."
