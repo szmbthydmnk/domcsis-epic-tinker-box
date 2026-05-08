@@ -1,3 +1,139 @@
+# =============================================================================
+# pyproject.toml — Python package configuration for domcsis-epic-tinker-box
+# =============================================================================
+# This file is the single source of truth for the Python package.
+# It controls how pip installs the package, what its metadata is,
+# and how tools like mypy, ruff, and pytest are configured.
+# Location: python/pyproject.toml
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# BUILD SYSTEM
+# -----------------------------------------------------------------------------
+# This block tells pip WHICH tool to use to build and install the package.
+# Without this block, "pip install -e ." cannot proceed at all.
+#
+# "setuptools" is the most common and stable Python build backend.
+# The "requires" field pins a minimum version so the build is reproducible.
+# The "build-backend" field points to the actual Python object pip calls.
+# -----------------------------------------------------------------------------
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+
+
+# -----------------------------------------------------------------------------
+# PROJECT METADATA
+# -----------------------------------------------------------------------------
+# This is the core metadata block that PyPI and pip read.
+# Every field here appears on the PyPI package page after publishing.
+#
+# "name": the pip-installable name. Convention is hyphens, NOT underscores.
+#         Users will run: pip install domcsis-epic-tinker-box
+#         The importable Python name uses underscores: domcsis_epic_tinker_box
+#         This hyphen/underscore split is standard Python packaging convention.
+#
+# "version": the current release version in semantic versioning format.
+#            Later this will be bumped automatically by the release workflow.
+#            Format: MAJOR.MINOR.PATCH
+#
+# "description": a single-line summary shown on PyPI search results.
+#
+# "readme": points to the README file that becomes the PyPI long description.
+#           This file is relative to the location of pyproject.toml.
+#
+# "requires-python": the minimum Python version this package supports.
+#                    pip will refuse to install the package on older Pythons.
+#
+# "dependencies": runtime dependencies installed automatically when a user
+#                 runs "pip install domcsis-epic-tinker-box".
+#                 These are ALWAYS installed, not only for development.
+#                 numpy and scipy are listed here because the package
+#                 imports them directly in the source code.
+# -----------------------------------------------------------------------------
+[project]
+name = "domcsis-epic-tinker-box"
+version = "0.1.0"
+description = "Domcsi's Epic Tinker Box - a collection of Python utilities for scientific and quantum computing research."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+]
+
+
+# -----------------------------------------------------------------------------
+# OPTIONAL / DEVELOPMENT DEPENDENCIES
+# -----------------------------------------------------------------------------
+# These are dependencies that are NOT needed to use the package, but ARE
+# needed to develop, test, or lint it.
+#
+# The "dev" key defines a named group. To install the package plus this group:
+#   pip install -e ".[dev]"
+#
+# This is the command the GitHub Actions CI workflows will use.
+# It installs everything in one step: the package itself, its runtime
+# dependencies, and all the dev tools.
+#
+# "pytest"      — the test runner used in CI and locally.
+# "mypy"        — static type checker. Also configured in [tool.mypy] below.
+# "ruff"        — linter and formatter. Used in the python-ruff.yml workflow.
+# "scipy-stubs" — type stubs for scipy, required by mypy to resolve
+#                 scipy.sparse and other scipy imports without errors.
+# -----------------------------------------------------------------------------
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "mypy",
+    "ruff",
+    "scipy-stubs",
+]
+
+
+# -----------------------------------------------------------------------------
+# PACKAGE DISCOVERY
+# -----------------------------------------------------------------------------
+# This block tells setuptools WHERE to look for the Python package.
+#
+# The src layout is the recommended modern Python package structure.
+# It means the importable package lives under src/ rather than at the root.
+# Without this block, setuptools would not find domcsis_epic_tinker_box at all
+# because it is not at the top level next to pyproject.toml.
+#
+# "where = ['src']" means: look inside the python/src/ directory for packages.
+# setuptools will find domcsis_epic_tinker_box/ there because it has an
+# __init__.py file, marking it as a regular Python package.
+# -----------------------------------------------------------------------------
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
+# -----------------------------------------------------------------------------
+# MYPY CONFIGURATION
+# -----------------------------------------------------------------------------
+# mypy is the static type checker for Python. It reads this block when run
+# from the python/ directory or when invoked in CI with "mypy python/src".
+#
+# "python_version": tells mypy which Python version's type rules to apply.
+#                   Set to 3.14 to match your local development environment.
+#                   Note: the GitHub Actions CI workflow uses Python 3.11,
+#                   so there is a slight mismatch. If mypy raises version-
+#                   specific issues in CI that do not reproduce locally,
+#                   aligning both to the same version is the fix.
+#
+# "warn_unused_configs": if set to true, mypy warns you when a section of
+#                        this config file has no effect, for example if you
+#                        write a per-module override for a module that does
+#                        not exist. Useful for catching stale config entries.
+#
+# The CI workflow currently runs mypy with --strict, which enables a larger
+# set of checks on top of this base configuration. --strict is passed on the
+# command line in python-mypy.yml rather than being set here, which keeps
+# the option visible and easy to remove if needed.
+# -----------------------------------------------------------------------------
 [tool.mypy]
 python_version = "3.14"
 warn_unused_configs = true
