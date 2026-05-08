@@ -22,6 +22,10 @@ def test_two_qubit_length() -> None:
     assert len(generate_all_pauli_strings(2)) == 16
 
 
+def test_three_qubit_length() -> None:
+    assert len(generate_all_pauli_strings(3)) == 4**3
+
+
 def test_invalid_input() -> None:
     with pytest.raises(ValueError):
         generate_all_pauli_strings(0)
