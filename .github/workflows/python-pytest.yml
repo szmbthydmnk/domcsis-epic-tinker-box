@@ -1,0 +1,44 @@
+name: Python pytest
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [main]
+    paths:
+      - 'python/**/*.py'
+      - 'python/pyproject.toml'
+      - '.github/workflows/python-pytest.yml'
+
+  pull_request:
+    branches: [main]
+    paths:
+      - 'python/**/*.py'
+      - 'python/pyproject.toml'
+      - '.github/workflows/python-pytest.yml'
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: python
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install package and dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run pytest
+        run: |
+          python -m pytest tests/
