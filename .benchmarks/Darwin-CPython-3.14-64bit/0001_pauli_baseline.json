@@ -1,0 +1,288 @@
+{
+    "machine_info": {
+        "node": "Szombathys-MacBook-Air.local",
+        "processor": "arm",
+        "machine": "arm64",
+        "python_compiler": "Clang 17.0.0 (clang-1700.6.3.2)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.14.2",
+        "python_version": "3.14.2",
+        "python_build": [
+            "main",
+            "Jan  3 2026 22:57:36"
+        ],
+        "release": "25.4.0",
+        "system": "Darwin",
+        "cpu": {
+            "python_version": "3.14.2.final.0 (64 bit)",
+            "cpuinfo_version": [
+                9,
+                0,
+                0
+            ],
+            "cpuinfo_version_string": "9.0.0",
+            "arch": "ARM_8",
+            "bits": 64,
+            "count": 10,
+            "arch_string_raw": "arm64",
+            "brand_raw": "Apple M4"
+        }
+    },
+    "commit_info": {
+        "id": "e56cf3e4a5994935c81a6a3d28e6718200a5e647",
+        "time": "2026-05-08T21:37:14+02:00",
+        "author_time": "2026-05-08T21:37:14+02:00",
+        "dirty": false,
+        "project": "domcsis-epic-tinker-box",
+        "branch": "main"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_bench_single_qubit",
+            "fullname": "benchmarks/bench_pauli_micro.py::test_bench_single_qubit",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.3330000001587905e-06,
+                "max": 6.165999934637512e-06,
+                "mean": 1.4945303064971767e-06,
+                "stddev": 9.278694519852437e-08,
+                "rounds": 50633,
+                "median": 1.4999999393694452e-06,
+                "iqr": 4.1000134842761327e-08,
+                "q1": 1.4589999182135216e-06,
+                "q3": 1.500000053056283e-06,
+                "iqr_outliers": 1653,
+                "stddev_outliers": 608,
+                "outliers": "608;1653",
+                "ld15iqr": 1.4159999182083993e-06,
+                "hd15iqr": 1.5829999711058917e-06,
+                "ops": 669106.5384573981,
+                "total": 0.07567255300887155,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_two_qubit",
+            "fullname": "benchmarks/bench_pauli_micro.py::test_bench_two_qubit",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0011042499999120992,
+                "max": 0.0013966660000050979,
+                "mean": 0.0012211240230793662,
+                "stddev": 3.0922267951727267e-05,
+                "rounds": 390,
+                "median": 0.0012298544999680416,
+                "iqr": 2.358299991556123e-05,
+                "q1": 0.001213000000007014,
+                "q3": 0.0012365829999225753,
+                "iqr_outliers": 48,
+                "stddev_outliers": 74,
+                "outliers": "74;48",
+                "ld15iqr": 0.0011781670000345912,
+                "hd15iqr": 0.0012748750000355358,
+                "ops": 818.9176374388677,
+                "total": 0.47623836900095284,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_three_qubit",
+            "fullname": "benchmarks/bench_pauli_micro.py::test_bench_three_qubit",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.009299999999939246,
+                "max": 0.01107937500000844,
+                "mean": 0.009753854359218767,
+                "stddev": 0.0002141019769861737,
+                "rounds": 103,
+                "median": 0.009714040999938334,
+                "iqr": 0.00023073999989264848,
+                "q1": 0.009665968500058852,
+                "q3": 0.009896708499951501,
+                "iqr_outliers": 2,
+                "stddev_outliers": 16,
+                "outliers": "16;2",
+                "ld15iqr": 0.009339333999946575,
+                "hd15iqr": 0.01107937500000844,
+                "ops": 102.52357305856829,
+                "total": 1.004646998999533,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_four_qubit",
+            "fullname": "benchmarks/bench_pauli_micro.py::test_bench_four_qubit",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.05749620899996444,
+                "max": 0.05921612500003448,
+                "mean": 0.058578294055551955,
+                "stddev": 0.0006346175587405404,
+                "rounds": 18,
+                "median": 0.05880518750001329,
+                "iqr": 0.0012240829998972913,
+                "q1": 0.05788204200007385,
+                "q3": 0.059106124999971144,
+                "iqr_outliers": 0,
+                "stddev_outliers": 6,
+                "outliers": "6;0",
+                "ld15iqr": 0.05749620899996444,
+                "hd15iqr": 0.05921612500003448,
+                "ops": 17.07116972460248,
+                "total": 1.0544092929999351,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_three_qubit_as_dict",
+            "fullname": "benchmarks/bench_pauli_micro.py::test_bench_three_qubit_as_dict",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.009348667000040223,
+                "max": 0.00996295800007374,
+                "mean": 0.009763434425756057,
+                "stddev": 0.00013827828459669824,
+                "rounds": 101,
+                "median": 0.009836457999995218,
+                "iqr": 0.00021678150008597186,
+                "q1": 0.009641145749981206,
+                "q3": 0.009857927250067178,
+                "iqr_outliers": 0,
+                "stddev_outliers": 27,
+                "outliers": "27;0",
+                "ld15iqr": 0.009348667000040223,
+                "hd15iqr": 0.00996295800007374,
+                "ops": 102.42297498941439,
+                "total": 0.9861068770013617,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_subset_small",
+            "fullname": "benchmarks/bench_pauli_micro.py::test_bench_subset_small",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0004076249999798165,
+                "max": 0.0006344580000359201,
+                "mean": 0.0004470521212432559,
+                "stddev": 1.0474720639071486e-05,
+                "rounds": 1930,
+                "median": 0.0004439169999841397,
+                "iqr": 1.0124999903382559e-05,
+                "q1": 0.0004416250000076616,
+                "q3": 0.00045174999991104414,
+                "iqr_outliers": 62,
+                "stddev_outliers": 346,
+                "outliers": "346;62",
+                "ld15iqr": 0.0004268329998922127,
+                "hd15iqr": 0.00046695800006091304,
+                "ops": 2236.8756404040564,
+                "total": 0.8628105939994839,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_subset_full",
+            "fullname": "benchmarks/bench_pauli_micro.py::test_bench_subset_full",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.009329249999950662,
+                "max": 0.009995000000003529,
+                "mean": 0.009795937119999962,
+                "stddev": 0.00013890957293273475,
+                "rounds": 100,
+                "median": 0.009841312500043387,
+                "iqr": 0.00019547799996644244,
+                "q1": 0.009715438000000631,
+                "q3": 0.009910915999967074,
+                "iqr_outliers": 2,
+                "stddev_outliers": 25,
+                "outliers": "25;2",
+                "ld15iqr": 0.009470834000012474,
+                "hd15iqr": 0.009995000000003529,
+                "ops": 102.08313791218005,
+                "total": 0.9795937119999962,
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-05-08T19:47:42.811866+00:00",
+    "version": "5.2.3"
+}
