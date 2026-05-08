@@ -1,3 +1,4 @@
+from domcsis_epic_tinker_box.pauli_algebra.pauli_operators import generate_pauli_operators
 import numpy as np
 import pytest
 from scipy.sparse import csr_matrix
@@ -99,3 +100,115 @@ def test_multi_char_string_raises() -> None:
 def test_invalid_integer_raises() -> None:
     with pytest.raises(ValueError):
         pauli_matrix(4)
+
+
+# =============================================================================
+# generate_pauli_operators — int input (list)
+# =============================================================================
+
+def test_int_input_returns_list() -> None:
+    result = generate_pauli_operators(1)
+    assert isinstance(result, list)
+
+
+def test_int_input_correct_count() -> None:
+    assert len(generate_pauli_operators(1)) == 4
+    assert len(generate_pauli_operators(2)) == 16
+
+
+def test_int_input_list_contains_csr_matrices() -> None:
+    assert all(isinstance(m, csr_matrix) for m in generate_pauli_operators(1))  # type: ignore[union-attr]
+
+
+def test_int_input_correct_shape() -> None:
+    ops = generate_pauli_operators(2)
+    assert all(m.shape == (4, 4) for m in ops)  # type: ignore[union-attr]
+
+
+def test_int_input_first_operator_is_II() -> None:
+    ops = generate_pauli_operators(2)
+    assert isinstance(ops, list)
+    assert np.allclose(ops[0].toarray(), np.eye(4))
+
+
+# =============================================================================
+# generate_pauli_operators — int input (dict)
+# =============================================================================
+
+def test_int_input_as_dict_returns_dict() -> None:
+    result = generate_pauli_operators(1, as_dict=True)
+    assert isinstance(result, dict)
+
+
+def test_int_input_as_dict_correct_keys() -> None:
+    result = generate_pauli_operators(1, as_dict=True)
+    assert set(result.keys()) == {"I", "X", "Y", "Z"}  # type: ignore[union-attr]
+
+
+def test_int_input_as_dict_values_are_csr_matrices() -> None:
+    result = generate_pauli_operators(1, as_dict=True)
+    assert all(isinstance(m, csr_matrix) for m in result.values())  # type: ignore[union-attr]
+
+
+def test_int_input_as_dict_matches_list() -> None:
+    ops_list = generate_pauli_operators(1)
+    ops_dict = generate_pauli_operators(1, as_dict=True)
+    strings = generate_all_pauli_strings(1)
+    assert isinstance(ops_list, list)
+    assert isinstance(ops_dict, dict)
+    for i, s in enumerate(strings):
+        assert np.allclose(
+            ops_list[i].toarray(),
+            ops_dict[s].toarray(),
+        )
+
+
+# =============================================================================
+# generate_pauli_operators — set[str] input
+# =============================================================================
+
+def test_set_input_returns_dict() -> None:
+    result = generate_pauli_operators({"XI", "IZ"})
+    assert isinstance(result, dict)
+
+
+def test_set_input_correct_keys() -> None:
+    result = generate_pauli_operators({"XI", "IZ"})
+    assert set(result.keys()) == {"XI", "IZ"}  # type: ignore[union-attr]
+
+
+def test_set_input_correct_shape() -> None:
+    result = generate_pauli_operators({"XI", "IZ"})
+    assert all(m.shape == (4, 4) for m in result.values())  # type: ignore[union-attr]
+
+
+def test_set_input_XI_correct_values() -> None:
+    result = generate_pauli_operators({"XI"})
+    assert isinstance(result, dict)
+    expected = np.kron(
+        pauli_matrix("X").toarray(),
+        pauli_matrix("I").toarray(),
+    )
+    assert np.allclose(result["XI"].toarray(), expected)
+
+
+def test_set_input_matches_full_generation() -> None:
+    full = generate_pauli_operators(2, as_dict=True)
+    subset = generate_pauli_operators({"XI", "YZ", "II"})
+    assert isinstance(full, dict)
+    assert isinstance(subset, dict)
+    for s in ("XI", "YZ", "II"):
+        assert np.allclose(
+            full[s].toarray(),
+            subset[s].toarray(),
+        )
+
+
+def test_set_input_invalid_string_raises() -> None:
+    with pytest.raises(ValueError):
+        generate_pauli_operators({"XA"})
+
+
+def test_int_input_invalid_raises() -> None:
+    with pytest.raises(ValueError):
+        generate_pauli_operators(0)
