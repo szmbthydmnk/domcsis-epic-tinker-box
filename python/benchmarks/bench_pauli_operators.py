@@ -1,19 +1,21 @@
 """
-Benchmark suite for generate_pauli_operators and generate_pauli_operators_for.
+Benchmark suite for generate_pauli_operators.
 
 Layer 1 — Micro-benchmarks (pytest-benchmark)
-    Run with:   pytest benchmarks/bench_pauli_operators.py -v
-    Compare:    pytest benchmarks/bench_pauli_operators.py --benchmark-compare
-    Save:       pytest benchmarks/bench_pauli_operators.py --benchmark-save=baseline
+    Run with:   pytest python/benchmarks/bench_pauli_operators.py -v
+    Compare:    pytest python/benchmarks/bench_pauli_operators.py --benchmark-compare
+    Save:       pytest python/benchmarks/bench_pauli_operators.py --benchmark-save=baseline
 
 Layer 2 — Scaling study (standalone script)
-    Run with:   python benchmarks/bench_pauli_operators.py
+    Run with:   python python/benchmarks/bench_pauli_operators.py
+                python python/benchmarks/bench_pauli_operators.py --max-n 6 --csv
 
 Layer 3 — Release benchmark (pyperf, statistical)
-    Run with:   python benchmarks/bench_pauli_operators.py --release
+    Run with:   python python/benchmarks/bench_pauli_operators.py --release
+    Compare:    python -m pyperf compare_to results/release_v0.1.4.json results/release_v0.2.0.json
 
 Dependencies:
-    pip install pytest pytest-benchmark pyperf memory-profiler
+    pip install pytest pytest-benchmark pyperf
 """
 
 # =============================================================================
@@ -30,6 +32,11 @@ Dependencies:
 #   the benchmark in a subprocess (to get a clean process state), calibrates
 #   the number of iterations automatically, and detects unstable results.
 #   Produces a JSON output that can be compared with `python -m pyperf compare`.
+#
+#   IMPORTANT — pyperf.Runner() hijacks sys.argv at instantiation time.
+#   This means it must never be instantiated before our own argparse has
+#   finished and cleaned up sys.argv. See _run_release_benchmark() for how
+#   we handle this.
 #
 # tracemalloc:
 #   Python stdlib memory tracer. Captures peak memory allocated during a
@@ -59,8 +66,8 @@ from typing import Any
 # package to be installed via pip.
 #
 # File location:  python/benchmarks/bench_pauli_operators.py
-# .parent       → python/benchmarks/
-# .parent.parent → python/
+# .parent         → python/benchmarks/
+# .parent.parent  → python/
 # .parent.parent.parent → repo root
 #
 # We add python/src to sys.path so Python can find domcsis_epic_tinker_box.
@@ -300,20 +307,31 @@ def _run_scaling_study(max_n: int = 5, save_csv: bool = False) -> None:
 #        python -m pyperf compare_to baseline.json new.json
 #      to get a statistically grounded comparison with confidence intervals.
 #
-# When to use this:
-#   Run this once before tagging a release. Commit the JSON output to
-#   benchmarks/results/release_vX.Y.Z.json so future releases can compare.
+# IMPORTANT — pyperf.Runner() sys.argv conflict:
+#   pyperf.Runner() immediately calls argparse on sys.argv when instantiated.
+#   If our own "--release" flag is still in sys.argv at that point, pyperf
+#   raises "unrecognized arguments: --release" and exits.
+#
+#   The fix has two parts:
+#     1. Parse and remove our own flags from sys.argv BEFORE instantiating
+#        pyperf.Runner(). We do this by resetting sys.argv to only the script
+#        name before calling pyperf.Runner().
+#     2. Pass the output file path to pyperf via its own --output flag by
+#        injecting it into sys.argv after we have cleared our own flags.
+#        pyperf natively understands --output and writes the JSON there.
 #
 # How to run:
-#   python benchmarks/bench_pauli_operators.py --release
+#   python python/benchmarks/bench_pauli_operators.py --release
 #   python -m pyperf compare_to benchmarks/results/release_v0.1.4.json \
 #                                benchmarks/results/release_v0.2.0.json
 # =============================================================================
 
-def _run_release_benchmark() -> None:
+def _run_release_benchmark(output_path: Path) -> None:
     """
     Run the Layer 3 release benchmark using pyperf.
-    Saves results to benchmarks/results/release_<version>.json.
+
+    Args:
+        output_path: Path to write the pyperf JSON results file.
     """
     try:
         import pyperf  # type: ignore[import-untyped]  # noqa: PLC0415
@@ -321,23 +339,18 @@ def _run_release_benchmark() -> None:
         print("pyperf is not installed. Run: pip install pyperf")
         sys.exit(1)
 
-    try:
-        from domcsis_epic_tinker_box import __version__  # type: ignore[attr-defined]  # noqa: PLC0415
-        version_tag = f"v{__version__}"
-    except ImportError:
-        version_tag = "unknown"
-
-    output_path = (
-        _REPO_ROOT / "python" / "benchmarks" / "results" / f"release_{version_tag}.json"
-    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Reconstruct sys.argv with only the script name and pyperf's own --output
+    # flag. pyperf.Runner() will parse this clean argv and write results to the
+    # specified file. Without this reset, pyperf sees "--release" and crashes.
+    sys.argv = [sys.argv[0], "--output", str(output_path)]
 
     runner = pyperf.Runner()
 
     # pyperf.Runner.bench_func() takes a callable and its arguments.
     # It handles subprocess isolation, calibration, and JSON output internally.
     # Each call below produces one named benchmark entry in the output JSON.
-
     for n in [1, 2, 3, 4]:
         runner.bench_func(
             f"generate_pauli_operators(n={n})",
@@ -375,6 +388,7 @@ def _run_release_benchmark() -> None:
 # =============================================================================
 
 if __name__ == "__main__":
+    # Parse our own flags FIRST, before pyperf can touch sys.argv.
     parser = argparse.ArgumentParser(
         description="Benchmark suite for generate_pauli_operators."
     )
@@ -397,6 +411,20 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.release:
-        _run_release_benchmark()
+        # Derive the output path from the package version if available.
+        try:
+            from domcsis_epic_tinker_box import __version__  # type: ignore[attr-defined]  # noqa: PLC0415
+            version_tag = f"v{__version__}"
+        except ImportError:
+            version_tag = "unknown"
+
+        output_path = (
+            _REPO_ROOT
+            / "python"
+            / "benchmarks"
+            / "results"
+            / f"release_{version_tag}.json"
+        )
+        _run_release_benchmark(output_path)
     else:
         _run_scaling_study(max_n=args.max_n, save_csv=args.csv)
