@@ -91,10 +91,10 @@ dependencies = [
 dev = [
     "pytest",
     "pytest-benchmark",
-    "pyperf",
     "mypy",
     "ruff",
     "scipy-stubs",
+    "memory-profiler",
 ]
 
 
