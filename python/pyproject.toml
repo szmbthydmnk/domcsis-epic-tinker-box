@@ -12,7 +12,7 @@
 # BUILD SYSTEM
 # -----------------------------------------------------------------------------
 # This block tells pip WHICH tool to use to build and install the package.
-# Without this block, "pip install -e ." cannot proceed at all.
+# Without this block, "pip install -e ." cannot proceed.
 #
 # "setuptools" is the most common and stable Python build backend.
 # The "requires" field pins a minimum version so the build is reproducible.
