@@ -15,7 +15,7 @@ This should also be a playground for myself to learn and grow as a programmer.
 
 ### Number of Tests
 
-- Python tests: <!-- PYTHON_TESTS -->34 tests<!-- /PYTHON_TESTS -->
+- Python tests: <!-- PYTHON_TESTS -->50 tests<!-- /PYTHON_TESTS -->
 
 ### LOC metrics
 Now this is not important, and I do not think that it is a good idea to attribute quality, effort or productiveness to the following metrix, but it is like the first, easy-peasy Github Action that one can set up, so here it is:
@@ -26,7 +26,7 @@ LOCo is lines of comments
 code share is LOC/(LOC + LOCo)
 ```
 
-- Python: <!-- PYTHON_METRIC -->361 LOC, code share = 65.5%<!-- /PYTHON_METRIC -->
+- Python: <!-- PYTHON_METRIC -->442 LOC, code share = 69.1%<!-- /PYTHON_METRIC -->
 - Julia: <!-- JULIA_METRIC -->0 LOC, code share = N/A<!-- /JULIA_METRIC -->
 
 ---
