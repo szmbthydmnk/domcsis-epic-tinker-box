@@ -82,14 +82,14 @@ def generate_exponential_rnd_numbers(lambd: float = 1, n: int = 1) -> list[float
 
 
 
-def generate_random_numbers(distribution: str, params: dict, n: int = 1) -> list[float]:
+def generate_random_numbers(distribution: str, params: dict[str, float], n: int = 1) -> list[float]:
     """
     Generates n random variables from a specified distribution with given parameters.
     
     Args:
         distribution: str
             The name of the distribution to sample from. Supported values are 'gaussian', 'uniform', and 'exponential'.
-        params: dict
+        params: dict[str, float]
             A dictionary containing the parameters for the specified distribution. For 'gaussian', expected keys are 'mu' and 'sigma'. For 'uniform', expected keys are 'a' and 'b'. For 'exponential', expected key is 'lambda'.
         n: int
             The number of random variables to generate.
@@ -118,7 +118,7 @@ def generate_random_numbers(distribution: str, params: dict, n: int = 1) -> list
             raise ValueError("Missing parameter for Exponential distribution. Expected key: 'lambda'")
         return generate_exponential_rnd_numbers(params['lambda'], n)
     else:
-        raise ValueError(f"Unsupported/not implemented distribution: '{distribution}'. Supported values are 'gaussian', 'uniform', and 'exponential'.") 
+        raise ValueError(f"Unsupported/not implemented distribution: '{distribution}'. Supported values are 'gaussian', 'uniform', and 'exponential'.")
     
     if distribution == 'gaussian':
         return generate_gaussian_rnd_numbers(params['mu'], params['sigma'], n)
