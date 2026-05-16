@@ -3,7 +3,6 @@ This module provides functions for generating random numbers from various distri
 """
 
 import random
-import matplotlib.pyplot as plt
 
 def generate_gaussian_rnd_numbers(mu: float = 0, sigma: float = 1, n: int = 1) -> list[float]:
     """
