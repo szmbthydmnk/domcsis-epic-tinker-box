@@ -26,7 +26,7 @@ LOCo is lines of comments
 code share is LOC/(LOC + LOCo)
 ```
 
-- Python: <!-- PYTHON_METRIC -->644 LOC, code share = 66.2%<!-- /PYTHON_METRIC -->
+- Python: <!-- PYTHON_METRIC -->645 LOC, code share = 66.2%<!-- /PYTHON_METRIC -->
 - Julia: <!-- JULIA_METRIC -->0 LOC, code share = N/A<!-- /JULIA_METRIC -->
 
 ---
