@@ -16,6 +16,9 @@ import math
 import random
 
 
+_GLOBAL_RNG = random.Random()
+
+
 def _resolve_rng(
     rng: Optional[random.Random] = None,
     seed: Optional[int] = None,
@@ -52,7 +55,7 @@ def _resolve_rng(
         return rng
     if seed is not None:
         return random.Random(seed)
-    return random
+    return _GLOBAL_RNG
 
 
 def generate_gaussian_rnd_numbers(
