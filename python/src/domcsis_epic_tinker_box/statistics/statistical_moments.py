@@ -8,7 +8,7 @@ However, keep in mind that these functions are not opitimized for performance bu
 
 from __future__ import annotations
 
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 import numpy as np
 
