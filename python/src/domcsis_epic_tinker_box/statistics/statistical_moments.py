@@ -132,6 +132,6 @@ def skewness(data: List[float] | np.ndarray) -> float:
     if data_variance == 0:
         raise ValueError("Variance of the data must be non-zero to calculate skewness")
     
-    return sum((x - data_mean) ** 3 for x in data) / (len(data) * (data_variance ** 1.5))
+    return float(sum((x - data_mean) ** 3 for x in data) / (len(data) * (data_variance ** 1.5)))
 
 
