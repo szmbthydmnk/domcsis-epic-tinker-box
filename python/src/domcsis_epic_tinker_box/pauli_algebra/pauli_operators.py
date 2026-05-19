@@ -18,7 +18,7 @@ from functools import reduce
 from itertools import product
     # typing.overload is used to provide type hints for the generate_pauli_operators 
     # function, which has different return types based on the input arguments 
-from typing import overload
+from typing import overload, cast
     #
 from dataclasses import dataclass, field
 # =====================================================================================
@@ -52,7 +52,7 @@ class  PauliOperators:
         Generates the full 4^N Pauli space.
         """
         
-        operators: dict[str, csr_matrix] = generate_pauli_operators(n_qubits, as_dict=True)
+        operators: dict[str, csr_matrix] = cast(dict[str, csr_matrix], generate_pauli_operators(n_qubits, as_dict=True))
         return cls(
             n_qubits=n_qubits,
             labels=tuple(operators.keys()),
@@ -66,7 +66,7 @@ class  PauliOperators:
         Generates operators for an explicit subset of Pauli strings.
         """
         
-        operators: dict[pstr, csr_matrix] = generate_pauli_operators(pauli_strings)
+        operators: dict[str, csr_matrix] = cast(dict[str, csr_matrix], generate_pauli_operators(pauli_strings))
         m: int = len(next(iter(pauli_strings)))
         
         return cls(
@@ -82,7 +82,7 @@ class  PauliOperators:
         return len(self.labels)
     
     
-    def items(self) -> zip:
+    def items(self) -> zip[tuple[str, csr_matrix]]:
         """
         Iterate as (label, matrix) pairs - like dict.items().
         """
