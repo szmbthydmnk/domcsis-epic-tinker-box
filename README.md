@@ -10,6 +10,16 @@ Domcsi's Epic Tinker Box is my little repository of Python and Julia libraries f
 
 This is also a playground for myself to learn and grow as a programmer.
 
+Table of contents:
+- [Description](#description)
+- [Implemented Features (Python)](#implemented-features-python)
+  - [`statistics`](#statistics)
+  - [`pauli_algebra`](#pauli_algebra)
+  - [`quantum_state`](#quantum_state)
+  - [`magic`](#magic)
+- [Metrics](#metrics)
+  - [Number of Tests](#number-of-tests)
+  - [LOC metrics](#loc-metrics)
 ---
 
 ## Implemented Features (Python)
