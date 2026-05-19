@@ -1,4 +1,4 @@
-## [0.3.0] - 2026-05-19
+## [0.4.0] - 2026-05-19
 
 ### Added
 - `QuantumState` — immutable validated quantum state container with three
