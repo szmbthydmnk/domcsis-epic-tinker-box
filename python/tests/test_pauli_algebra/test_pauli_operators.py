@@ -121,7 +121,7 @@ def test_int_input_correct_count() -> None:
 
 
 def test_int_input_list_contains_csr_matrices() -> None:
-    assert all(isinstance(m, csr_matrix) for m in generate_pauli_operators(1))  # type: ignore[union-attr]
+    assert all(isinstance(m, csr_matrix) for m in generate_pauli_operators(1)) 
 
 
 def test_int_input_correct_shape() -> None:
