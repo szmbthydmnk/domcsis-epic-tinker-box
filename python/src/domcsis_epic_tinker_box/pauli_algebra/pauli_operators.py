@@ -20,7 +20,7 @@ from itertools import product
     # function, which has different return types based on the input arguments 
 from typing import overload, cast
     #
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 # =====================================================================================
     # Sparse identity matrix; general sparse array manipulation; sparse Kronecker product
 from scipy.sparse import identity, csr_matrix, kron   
