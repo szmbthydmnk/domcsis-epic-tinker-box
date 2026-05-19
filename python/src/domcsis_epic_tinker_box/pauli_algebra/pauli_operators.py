@@ -10,6 +10,7 @@ private functions:
 
 """
 # =====================================================================================
+from __future__ import annotations
     # functools.reduce is used to build the multi-qubit Pauli matrices via tensor 
     # product 
 from functools import reduce
