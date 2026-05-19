@@ -4,6 +4,7 @@ This file handles Pauli operator and Pauli string generation and manipulation.
 public functions:
 - pauli_matrix
 - generate_all_pauli_strings
+- generate_pauli_operators
 
 private functions:
 
@@ -18,6 +19,8 @@ from itertools import product
     # typing.overload is used to provide type hints for the generate_pauli_operators 
     # function, which has different return types based on the input arguments 
 from typing import overload
+    #
+from dataclasses import dataclass, field
 # =====================================================================================
     # Sparse identity matrix; general sparse array manipulation; sparse Kronecker product
 from scipy.sparse import identity, csr_matrix, kron   
@@ -29,7 +32,66 @@ _PAULI_X = csr_matrix([[0, 1], [1, 0]], dtype=complex)
 _PAULI_Y = csr_matrix([[0, 0 - 1j], [0 + 1j, 0]], dtype=complex)
 _PAULI_Z = csr_matrix([[1, 0], [0, -1]], dtype=complex)
 
+@dataclass(frozen=True)
+class  PauliOperators:
+    """
+    Immutable, validated collection of N-qubit operators.
+    Always store the sparse matrices and labels together.
+    """
+    
+    n_qubits: int
+    labels: tuple[str, ...]             # ("II", "IX", ..., "ZZ")
+    matrices: tuple[csr_matrix, ...]    # matching sparse matrices
+    
+    # ------------------------------------------------------------------ #
+    # Factory constructors — the only way to build a valid instance      #
+    # ------------------------------------------------------------------ #
+    @classmethod
+    def all(cls, n_qubits: int) -> "PauliOperators":
+        """
+        Generates the full 4^N Pauli space.
+        """
+        
+        operators: dict[str, csr_matrix] = generate_pauli_operators(n_qubits, as_dict=True)
+        return cls(
+            n_qubits=n_qubits,
+            labels=tuple(operators.keys()),
+            matrices=tuple(operators.values()),
+        )
+    
+    
+    @classmethod
+    def from_strings(cls, pauli_strings: set[str]) -> "PauliOperators":
+        """
+        Generates operators for an explicit subset of Pauli strings.
+        """
+        
+        operators: dict[pstr, csr_matrix] = generate_pauli_operators(pauli_strings)
+        m: int = len(next(iter(pauli_strings)))
+        
+        return cls(
+            n_qubits=m,
+            labels=tuple(operators.keys()),
+            matrices=tuple(operators.values())
+        )
 
+    # ------------------------------------------------------------------ #
+    # Convinience access                                                 #
+    # ------------------------------------------------------------------ #
+    def __len__(self) -> int:
+        return len(self.labels)
+    
+    
+    def items(self) -> zip:
+        """
+        Iterate as (label, matrix) pairs - like dict.items().
+        """
+        return zip(self.labels, self.matrices)
+    
+    
+    def as_dict(self) -> dict[str, csr_matrix]:
+        return dict(zip(self.labels, self.matrices))
+    
 # Internal helpers
 def _pauli_string_to_matrix(pauli_string: str) -> csr_matrix:
     """
