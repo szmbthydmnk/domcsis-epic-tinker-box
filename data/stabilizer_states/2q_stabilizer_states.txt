@@ -1,0 +1,12 @@
+2-qubit stabilizer states listed.
+
+The list contains an unnormalised set of state vector coefficients separated
+by tabulators.
+
+Therefore it is a complete list (60) for the 2-qubit PURE stabilzer quantum 
+states, with no specific order.
+
+The list start and finishes with 30 '=' signs.
+=============================
+
+=============================
