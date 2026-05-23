@@ -1,8 +1,9 @@
 module DomcsisEpicTinkerBox
 
-# Write your package code here.
+include("statistics.jl")
+
 greet() = println("Hello from DomcsisEpicTinkerBox!")
 
-export greet
+export greet, mean
 
 end
