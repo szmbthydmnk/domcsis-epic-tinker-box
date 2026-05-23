@@ -103,6 +103,6 @@ code share is LOC/(LOC + LOCo)
 ```
 
 - Python: <!-- PYTHON_METRIC -->1807 LOC, code share = 71.7%<!-- /PYTHON_METRIC -->
-- Julia: <!-- JULIA_METRIC -->0 LOC, code share = N/A<!-- /JULIA_METRIC -->
+- Julia: <!-- JULIA_METRIC -->27 LOC, code share = 93.1%<!-- /JULIA_METRIC -->
 
 ---
