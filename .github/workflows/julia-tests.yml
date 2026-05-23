@@ -25,10 +25,6 @@ jobs:
         julia-version: ['1.9', '1.10', 'nightly']
       fail-fast: false
 
-    defaults:
-      run:
-        working-directory: julia
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,6 +39,10 @@ jobs:
 
       - name: Build package
         uses: julia-actions/julia-buildpkg@v1
+        with:
+          project: julia
 
       - name: Run tests
         uses: julia-actions/julia-runtest@v1
+        with:
+          project: julia

@@ -20,10 +20,6 @@ jobs:
   format:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: julia
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,9 +36,9 @@ jobs:
         run: |
           julia -e '
             using JuliaFormatter
-            formatted = format(".", overwrite=false)
+            formatted = format("julia/", overwrite=false)
             if !formatted
-              @error "Some files are not formatted. Run JuliaFormatter.format(\".\") locally."
+              @error "Some files are not formatted. Run JuliaFormatter.format(\"julia/\") locally."
               exit(1)
             end
           '
