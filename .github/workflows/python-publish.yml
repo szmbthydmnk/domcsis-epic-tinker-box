@@ -8,6 +8,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     environment: release
+    if: ${{ !startsWith(github.ref_name, 'julia-') }}
     permissions:
       id-token: write
       contents: read
