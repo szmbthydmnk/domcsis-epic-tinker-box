@@ -95,7 +95,7 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Count Python tests
-        id: tests
+        id: python_tests
         run: |
           test_count=$(python -m pytest tests/ --collect-only -q 2>/dev/null \
             | grep -E "^[0-9]+ test" \
@@ -107,16 +107,53 @@ jobs:
 
           echo "python_tests=$test_count" >> "$GITHUB_OUTPUT"
 
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+
+      - name: Cache Julia packages
+        uses: julia-actions/cache@v2
+
+      - name: Count Julia tests
+        id: julia_tests
+        working-directory: ${{ github.workspace }}
+        run: |
+          julia --project=julia -e 'using Pkg; Pkg.instantiate()'
+
+          test_count=$(julia --project=julia -e '
+            using Test
+            # Count @test and @test_throws macros in test files
+            count = 0
+            for (root, dirs, files) in walkdir("julia/test")
+              for file in files
+                if endswith(file, ".jl")
+                  content = read(joinpath(root, file), String)
+                  count += length(collect(eachmatch(r"@test[\s_(]|@test_throws", content)))
+                end
+              end
+            end
+            println(count)
+          ')
+
+          if [ -z "$test_count" ]; then
+            test_count=0
+          fi
+
+          echo "julia_tests=$test_count" >> "$GITHUB_OUTPUT"
+
       - name: Update README metrics
         working-directory: ${{ github.workspace }}
         run: |
           python_metric="${{ steps.loc.outputs.python_code }} LOC, code share = ${{ steps.loc.outputs.python_code_pct }}"
           julia_metric="${{ steps.loc.outputs.julia_code }} LOC, code share = ${{ steps.loc.outputs.julia_code_pct }}"
-          tests_metric="${{ steps.tests.outputs.python_tests }} tests"
+          python_tests_metric="${{ steps.python_tests.outputs.python_tests }} tests"
+          julia_tests_metric="${{ steps.julia_tests.outputs.julia_tests }} tests"
 
           sed -i "s|<!-- PYTHON_METRIC -->.*<!-- /PYTHON_METRIC -->|<!-- PYTHON_METRIC -->${python_metric}<!-- /PYTHON_METRIC -->|" README.md
           sed -i "s|<!-- JULIA_METRIC -->.*<!-- /JULIA_METRIC -->|<!-- JULIA_METRIC -->${julia_metric}<!-- /JULIA_METRIC -->|" README.md
-          sed -i "s|<!-- PYTHON_TESTS -->.*<!-- /PYTHON_TESTS -->|<!-- PYTHON_TESTS -->${tests_metric}<!-- /PYTHON_TESTS -->|" README.md
+          sed -i "s|<!-- PYTHON_TESTS -->.*<!-- /PYTHON_TESTS -->|<!-- PYTHON_TESTS -->${python_tests_metric}<!-- /PYTHON_TESTS -->|" README.md
+          sed -i "s|<!-- JULIA_TESTS -->.*<!-- /JULIA_TESTS -->|<!-- JULIA_TESTS -->${julia_tests_metric}<!-- /JULIA_TESTS -->|" README.md
 
       - name: Show README diff
         working-directory: ${{ github.workspace }}
@@ -137,6 +174,7 @@ jobs:
           git add README.md
           git commit -m "Update README metrics [skip ci]"
           git push
+
       - name: Copy README into python/
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: ${{ github.workspace }}
