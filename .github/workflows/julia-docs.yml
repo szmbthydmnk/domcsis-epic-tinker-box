@@ -33,8 +33,11 @@ jobs:
       - name: Cache Julia packages
         uses: julia-actions/cache@v2
 
-      - name: Install package
+      - name: Instantiate package environment
         run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Instantiate docs environment
+        run: julia --project=docs -e 'using Pkg; Pkg.instantiate()'
 
       - name: Build and deploy docs
         env:

@@ -1,6 +1,6 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-DomcsisEpicTinkerBox = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+DomcsisEpicTinkerBox = "e045975a-8055-4875-baa9-f499549805c3"
 
 [compat]
 Documenter = "1"
