@@ -1,0 +1,47 @@
+name: Julia format
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [main]
+    paths:
+      - 'julia/**/*.jl'
+      - '.github/workflows/julia-format.yml'
+
+  pull_request:
+    branches: [main]
+    paths:
+      - 'julia/**/*.jl'
+      - '.github/workflows/julia-format.yml'
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: julia
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+
+      - name: Install JuliaFormatter
+        run: julia -e 'using Pkg; Pkg.add("JuliaFormatter")'
+
+      - name: Check formatting
+        run: |
+          julia -e '
+            using JuliaFormatter
+            formatted = format(".", overwrite=false)
+            if !formatted
+              @error "Some files are not formatted. Run JuliaFormatter.format(\".\") locally."
+              exit(1)
+            end
+          '

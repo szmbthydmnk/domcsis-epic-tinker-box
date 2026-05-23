@@ -1,0 +1,28 @@
+name: Julia LoC metrics
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [main]
+    paths:
+      - 'julia/**/*.jl'
+      - '.github/workflows/julia-loc.yml'
+
+jobs:
+  loc:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: julia
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install cloc
+        run: sudo apt-get install -y cloc
+
+      - name: Count lines of code
+        run: cloc src/ test/ --include-lang=Julia
