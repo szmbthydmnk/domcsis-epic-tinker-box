@@ -1,3 +1,29 @@
+## [Unreleased] - 2026-05-23
+
+### Added (Python)
+- `bell_state` — constructs 2-qubit Bell states by string identifier (`'Phi+'`, `'Phi-'`, `'Psi+'`, `'Psi-'`, case-insensitive) or N-qubit edge Bell state by integer. Validates input; supports up to 20 qubits.
+- `w_state` — generates N-qubit W states as normalised `QuantumState` vectors. Validates input; supports up to 20 qubits.
+
+### Added (Julia)
+- Initial Julia package scaffold `DomcsisEpicTinkerBox.jl` with full CI: tests (Julia 1.9, 1.10, nightly), formatter (JuliaFormatter), Documenter.jl docs deployment to GitHub Pages, and LoC metrics.
+- `statistics.jl` — `mean(xs)` computes the arithmetic mean of any `AbstractVector{<:Number}`; throws `ArgumentError` on empty input.
+- TagBot workflow for automated GitHub Release creation on General registry merge.
+- 5 Julia tests covering `mean` (standard cases, edge cases, empty-vector error) and `greet` smoke test.
+
+### Fixed (CI)
+- Python publish workflow: added `if: !startsWith(github.ref_name, 'julia-')` guard so Julia releases no longer trigger PyPI upload.
+- Python publish workflow: added `skip-existing: true` so re-runs for an already-uploaded Python version pass silently instead of erroring.
+- Julia docs workflow: added `pages: write` and `id-token: write` permissions required for Documenter.jl GitHub Pages deployment.
+- Julia CI: removed committed `Manifest.toml` that broke resolution on Julia 1.9/1.10; added `.gitignore` to prevent future commits.
+- Julia CI: fixed docs environment setup (`dev` local package into docs env + correct UUID in docs `Project.toml`).
+- `loc.yml`: fixed Julia test counter `UndefVarError` by wrapping count logic in a named function to avoid top-level soft-scope ambiguity.
+
+### Changed
+- README: added Python/Julia ✅/❌ columns to all feature tables; added Julia test count metric (`<!-- JULIA_TESTS -->`) updated automatically by `loc.yml`; added Julia registry version badge.
+- `loc.yml`: extended to count Julia tests via macro-pattern scan of `julia/test/**/*.jl` and inject the count into README.
+
+---
+
 ## [0.4.0] - 2026-05-19
 
 ### Added
