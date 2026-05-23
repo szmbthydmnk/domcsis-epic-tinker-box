@@ -3,7 +3,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from domcsis_epic_tinker_box.quantum_state.quantum_state import QuantumState
 from domcsis_epic_tinker_box.quantum_state.w_states import w_state
 
 
