@@ -122,9 +122,7 @@ jobs:
           julia --project=julia -e 'using Pkg; Pkg.instantiate()'
 
           test_count=$(julia --project=julia -e '
-            using Test
-            # Count @test and @test_throws macros in test files
-            count = 0
+            local count = 0
             for (root, dirs, files) in walkdir("julia/test")
               for file in files
                 if endswith(file, ".jl")
