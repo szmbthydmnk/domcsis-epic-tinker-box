@@ -78,6 +78,15 @@ Derived quantities computed on demand:
 | `.purity` | Tr(ρ²) | ✅ | ❌ |
 | `.dim` | Hilbert space dimension 2ᴺ | ✅ | ❌ |
 
+
+| Function | Description | Python | Julia |
+|---|---|:---:|:---:|
+| `bell_state` | Generate general Bell-states | ✅ | ❌ |
+| `w_state` | Generate general w-states | ✅ | ❌ |
+| `bell_state` | Generate general Bell-states | ✅ | ❌ |
+| `generate_all_stabilizer_states` | - | ❌ | ❌ |
+| `generate_random_stabilizer_state` | - | ❌ | ❌ |
+
 ---
 
 ### `magic`
