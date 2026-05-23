@@ -55,7 +55,7 @@ build-backend = "setuptools.build_meta"
 # -----------------------------------------------------------------------------
 [project]
 name = "domcsis-epic-tinker-box"
-version = "0.2.0"
+version = "0.4.2"
 description = "Domcsi's Epic Tinker Box - a collection of Python utilities for scientific and quantum computing research."
 readme = "README.md"
 requires-python = ">=3.11"
