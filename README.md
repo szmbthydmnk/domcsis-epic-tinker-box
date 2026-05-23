@@ -91,7 +91,7 @@ Derived quantities computed on demand from the canonical form:
 
 ### Number of Tests
 
-- Python tests: <!-- PYTHON_TESTS -->243 tests<!-- /PYTHON_TESTS -->
+- Python tests: <!-- PYTHON_TESTS -->263 tests<!-- /PYTHON_TESTS -->
 
 ### LOC metrics
 Now this is not important, and I do not think that it is a good idea to attribute quality, effort or productiveness to the following metric, but it is like the first, easy-peasy GitHub Action that one can set up, so here it is:
@@ -102,7 +102,7 @@ LOCo is lines of comments
 code share is LOC/(LOC + LOCo)
 ```
 
-- Python: <!-- PYTHON_METRIC -->1646 LOC, code share = 71.3%<!-- /PYTHON_METRIC -->
+- Python: <!-- PYTHON_METRIC -->1705 LOC, code share = 71.4%<!-- /PYTHON_METRIC -->
 - Julia: <!-- JULIA_METRIC -->0 LOC, code share = N/A<!-- /JULIA_METRIC -->
 
 ---
