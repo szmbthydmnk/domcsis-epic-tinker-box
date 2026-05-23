@@ -122,16 +122,19 @@ jobs:
           julia --project=julia -e 'using Pkg; Pkg.instantiate()'
 
           test_count=$(julia --project=julia -e '
-            local count = 0
-            for (root, dirs, files) in walkdir("julia/test")
-              for file in files
-                if endswith(file, ".jl")
-                  content = read(joinpath(root, file), String)
-                  count += length(collect(eachmatch(r"@test[\s_(]|@test_throws", content)))
+            function count_tests(dir)
+              n = 0
+              for (root, dirs, files) in walkdir(dir)
+                for file in files
+                  if endswith(file, ".jl")
+                    content = read(joinpath(root, file), String)
+                    n += length(collect(eachmatch(r"@test[\s_(]|@test_throws", content)))
+                  end
                 end
               end
+              return n
             end
-            println(count)
+            println(count_tests("julia/test"))
           ')
 
           if [ -z "$test_count" ]; then
