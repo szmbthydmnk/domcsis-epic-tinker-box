@@ -24,6 +24,13 @@
 
 ---
 
+## [0.4.1] - 2026-05-22
+
+### Added
+- Reference stabilizer-state enumerations as text files: `1q_stabilizer_states.txt`, `2q_stabilizer_states.txt`, `3q_stabilizer_states.txt` — complete lists of single-, two-, and three-qubit stabilizer states for use in tests and benchmarks.
+
+---
+
 ## [0.4.0] - 2026-05-19
 
 ### Added
@@ -46,6 +53,8 @@
   exposed for use in performance-critical call sites.
 - `statistical_moments` — population mean (real and complex), population
   variance, and skewness for finite-sample ensembles.
+- Module stubs for `mana.py` and `robustness_of_magic.py` (placeholders for future implementations).
+- Populated all previously empty `__init__.py` files across Python submodules.
 - Full pytest coverage for all new modules (243 tests total).
 
 ### Changed
@@ -53,6 +62,8 @@
   than a complex scalar, eliminating spurious imaginary-part warnings.
 - `_compute_sre` now handles `alpha=1` via the Shannon-entropy limit
   (`0 log 0 := 0`) instead of triggering a divide-by-zero `RuntimeWarning`.
+- `PauliOperators`: updated `pauli_operators.py` to fix iteration and
+  `as_dict` behaviour (multiple refinement commits).
 
 ---
 
