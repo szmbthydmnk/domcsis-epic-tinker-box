@@ -1,0 +1,14 @@
+# Julia Manifests — never commit for library packages
+Manifest.toml
+docs/Manifest.toml
+
+# Build artifacts
+docs/build/
+
+# Julia coverage
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+
+# Julia precompile cache
+*.ji
