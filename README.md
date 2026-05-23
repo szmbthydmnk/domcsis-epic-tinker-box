@@ -2,6 +2,10 @@
 [![PyPI version](https://img.shields.io/pypi/v/domcsis-epic-tinker-box)](https://pypi.org/project/domcsis-epic-tinker-box/)
 [![python mypy](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-mypy.yml/badge.svg?branch=main&event=push)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-mypy.yml)
 [![Python Ruff](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-ruff.yml/badge.svg?branch=main&event=push)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-ruff.yml)
+[![Julia tests](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-tests.yml/badge.svg)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-tests.yml)
+[![Julia format](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-format.yml/badge.svg)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-format.yml)
+[![Julia docs](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-docs.yml/badge.svg)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-docs.yml)
+[![Julia LoC metrics](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-loc.yml/badge.svg)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-loc.yml)
 
 # Domcsi's Epic Tinker Box
 Hello stranger!
