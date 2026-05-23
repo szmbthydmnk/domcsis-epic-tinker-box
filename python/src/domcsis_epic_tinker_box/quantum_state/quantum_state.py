@@ -18,6 +18,14 @@ class QuantumState:
         n_qubits: Number of qubits.
         state: State represetnation - state vector (2^N), density matrix (2^N x 2^N) or vectorized density matrix (4^N).
         state_type: "vector" if state is a state vector, "density_matrix" if state is a density matrix, "vectorized_density_matrix" if state is a vectorized density matrix.
+    
+    Example usage:
+        psi = np.array([1/np.sqrt(2), 0, 0, 1/np.sqrt(2)], dtype=complex)  # Bell state |Φ+⟩
+        state = QuantumState.from_vector(psi)
+        print("State vector:", state.vector)
+        print("Density matrix:\n", state.density_matrix)
+        print("Purity:", state.purity)
+        
     """
     
     n_qubits: int
