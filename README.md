@@ -97,7 +97,7 @@ Derived quantities computed on demand:
 ### Number of Tests
 
 - Python tests: <!-- PYTHON_TESTS -->293 tests<!-- /PYTHON_TESTS -->
-- Julia tests: <!-- JULIA_TESTS -->0 tests<!-- /JULIA_TESTS -->
+- Julia tests: <!-- JULIA_TESTS -->6 tests<!-- /JULIA_TESTS -->
 
 ### LOC metrics
 Now this is not important, and I do not think that it is a good idea to attribute quality, effort or productiveness to the following metric, but it is like the first, easy-peasy GitHub Action that one can set up, so here it is:
