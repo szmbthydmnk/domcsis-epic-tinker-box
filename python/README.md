@@ -2,7 +2,11 @@
 [![PyPI version](https://img.shields.io/pypi/v/domcsis-epic-tinker-box)](https://pypi.org/project/domcsis-epic-tinker-box/)
 [![python mypy](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-mypy.yml/badge.svg?branch=main&event=push)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-mypy.yml)
 [![Python Ruff](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-ruff.yml/badge.svg?branch=main&event=push)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/python-ruff.yml)
+
+---
+
 [![Julia tests](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-tests.yml/badge.svg)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-tests.yml)
+[![Julia version](https://img.shields.io/badge/Julia%20registry-v0.1.0-blueviolet)](https://github.com/JuliaRegistries/General)
 [![Julia format](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-format.yml/badge.svg)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-format.yml)
 [![Julia docs](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-docs.yml/badge.svg)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-docs.yml)
 [![Julia LoC metrics](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-loc.yml/badge.svg)](https://github.com/szmbthydmnk/domcsis-epic-tinker-box/actions/workflows/julia-loc.yml)
@@ -107,6 +111,6 @@ code share is LOC/(LOC + LOCo)
 ```
 
 - Python: <!-- PYTHON_METRIC -->1807 LOC, code share = 71.7%<!-- /PYTHON_METRIC -->
-- Julia: <!-- JULIA_METRIC -->22 LOC, code share = 91.7%<!-- /JULIA_METRIC -->
+- Julia: <!-- JULIA_METRIC -->36 LOC, code share = 97.3%<!-- /JULIA_METRIC -->
 
 ---
