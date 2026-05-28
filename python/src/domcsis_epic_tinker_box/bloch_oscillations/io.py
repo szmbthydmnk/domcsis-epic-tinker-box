@@ -27,6 +27,7 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -242,7 +243,7 @@ def write_log_header(
 def append_layer_log(
     log_file: Path,
     layer: int,
-    circuit: object,
+    circuit: Any,
     sim_type: str,
 ) -> None:
     """Append a single-layer entry to an existing circuit log file.
@@ -253,7 +254,9 @@ def append_layer_log(
     Args:
         log_file: Path returned by :func:`write_log_header`.
         layer:    Zero-based Trotter-layer index.
-        circuit:  Transpiled ``QuantumCircuit`` for this layer.
+        circuit:  Transpiled ``QuantumCircuit`` for this layer.  Typed as
+                  ``Any`` because ``qiskit`` ships no PEP 561 stubs; the
+                  concrete type is ``qiskit.QuantumCircuit`` at runtime.
         sim_type: Short label for the simulation type column
                   (e.g. ``"ideal_counts"`` or ``"noisy"``).
     """

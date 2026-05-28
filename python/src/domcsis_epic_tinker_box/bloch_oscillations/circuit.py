@@ -28,10 +28,14 @@ from __future__ import annotations
 
 from typing import Union
 
-from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister  # type: ignore[import-untyped]
-from qiskit.circuit import Instruction  # type: ignore[import-untyped]
-from qiskit.circuit.library import PauliEvolutionGate  # type: ignore[import-untyped]
-from qiskit.quantum_info import SparsePauliOp  # type: ignore[import-untyped]
+# qiskit ships no PEP 561 stubs; mypy is configured to ignore missing imports
+# for the entire qiskit* namespace via [[tool.mypy.overrides]] in pyproject.toml.
+# The type: ignore comments that were previously needed here have been removed
+# because the per-module override in pyproject.toml is the single point of truth.
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit.circuit import Instruction
+from qiskit.circuit.library import PauliEvolutionGate
+from qiskit.quantum_info import SparsePauliOp
 
 from .model import ModelParams, RunConfig
 
