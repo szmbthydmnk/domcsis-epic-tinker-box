@@ -36,9 +36,9 @@ from __future__ import annotations
 from typing import Any
 
 import numpy as np
-from qiskit import transpile  # type: ignore[import-untyped]
-from qiskit.quantum_info import SparsePauliOp, Statevector, DensityMatrix  # type: ignore[import-untyped]
-from qiskit_aer import AerSimulator  # type: ignore[import-untyped]
+from qiskit import transpile 
+from qiskit.quantum_info import SparsePauliOp, Statevector, DensityMatrix 
+from qiskit_aer import AerSimulator  
 
 from .model import ModelParams, RunConfig, center_index
 from .backends import get_fake_backend, make_noisy_density_simulator
@@ -141,7 +141,7 @@ def run_ideal_simulation_counts(
     correlators_list: list[np.ndarray[Any, np.dtype[np.float64]]] = []
 
     for layer in range(params.layers_max):
-        counts: dict[str, int] = result.get_counts(layer)  # type: ignore[assignment]
+        counts: dict[str, int] = result.get_counts(layer)  
         shots = sum(counts.values())
         mags, corr = _extract_from_counts(counts, shots, params)
         magnetizations_list.append(mags)
@@ -187,7 +187,7 @@ def run_ideal_simulation_observables(
         circ = init_circuit(params, config, with_classical=False)
         append_trotter_layer(circ, params, config, u2, u1, layers=layers, measure=False)
 
-        circ = transpile(circ, basis_gates=["cx", "rz", "sx", "x"])  # type: ignore[assignment]
+        circ = transpile(circ, basis_gates=["cx", "rz", "sx", "x"])  
 
         append_layer_log(log_file, layers, circ, "ideal_observables")
 
@@ -268,7 +268,7 @@ def run_noisy_simulation_counts(
     correlators_list: list[np.ndarray[Any, np.dtype[np.float64]]] = []
 
     for layer in range(params.layers_max):
-        counts: dict[str, int] = result.get_counts(layer)  # type: ignore[assignment]
+        counts: dict[str, int] = result.get_counts(layer)  
         shots = sum(counts.values())
         mags, corr = _extract_from_counts(counts, shots, params)
         magnetizations_list.append(mags)
@@ -330,20 +330,20 @@ def run_noisy_simulation_observables(
             circ,
             backend=backend,
             optimization_level=config.optimization_level,
-        )  # type: ignore[assignment]
+        )  
 
         append_layer_log(log_file, layers, circ, "noisy_observables")
 
         # Remap logical observables to the physical qubit layout chosen by the
         # transpiler.
         mag_obs: list[SparsePauliOp] = [
-            obs.apply_layout(circ.layout) for obs in logical_mag_obs  # type: ignore[attr-defined]
+            obs.apply_layout(circ.layout) for obs in logical_mag_obs  
         ]
         corr_obs: list[SparsePauliOp] = [
-            obs.apply_layout(circ.layout) for obs in logical_corr_obs  # type: ignore[attr-defined]
+            obs.apply_layout(circ.layout) for obs in logical_corr_obs  
         ]
 
-        circ.save_density_matrix()  # type: ignore[attr-defined]
+        circ.save_density_matrix()  
         result = backend.run(circ).result()
         rho: DensityMatrix = DensityMatrix(result.data(0)["density_matrix"])
 
