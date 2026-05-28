@@ -61,6 +61,6 @@ def test_w_state_raises_for_nonpositive_qubits(bad_no_qubits):
         w_state(bad_no_qubits)
 
 
-def test_w_state_raises_for_too_many_qubits():
+def test_w_state_raises_for_too_many_qubits() -> None:
     with pytest.raises(ValueError, match="more than 20 qubits"):
         w_state(21)
