@@ -22,9 +22,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from qiskit_aer import AerSimulator  # type: ignore[import-untyped]
-from qiskit_aer.noise import NoiseModel  # type: ignore[import-untyped]
+from qiskit_aer import AerSimulator  
+from qiskit_aer.noise import NoiseModel  
 
+from qiskit_ibm_runtime import fake_provider  
 
 # ============================================================================
 # Fake-backend resolution
@@ -63,7 +64,6 @@ def get_fake_backend(name: str) -> Any:
         RuntimeError:  If no matching class is found in
                        ``qiskit_ibm_runtime.fake_provider``.
     """
-    from qiskit_ibm_runtime import fake_provider  # type: ignore[import-untyped]
 
     key = name.lower()
     if key not in _FAKE_BACKEND_CANDIDATES:
@@ -75,7 +75,7 @@ def get_fake_backend(name: str) -> Any:
     for cls_name in _FAKE_BACKEND_CANDIDATES[key]:
         cls = getattr(fake_provider, cls_name, None)
         if cls is not None:
-            return cls()  # type: ignore[no-any-return]
+            return cls()
 
     raise RuntimeError(
         f"Could not find a fake-backend class for '{name}' in the installed "
