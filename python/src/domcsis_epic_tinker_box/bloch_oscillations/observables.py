@@ -14,7 +14,9 @@ the Qiskit simulator stack beyond ``qiskit.quantum_info.SparsePauliOp``.
 
 from __future__ import annotations
 
-from qiskit.quantum_info import SparsePauliOp  # type: ignore[import-untyped]
+# qiskit ships no PEP 561 stubs; import-not-found is suppressed project-wide
+# via [[tool.mypy.overrides]] in pyproject.toml — no per-import comment needed.
+from qiskit.quantum_info import SparsePauliOp
 
 from .model import ModelParams, center_index
 
