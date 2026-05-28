@@ -5,9 +5,9 @@ on:
 
     push:
         branches: [main]
-        path:
+        paths:
             - '**/*.py'
-            - 'pyproject.toml'
+            - 'python/pyproject.toml'
             - 'mypy.ini'
             - '.github/workflows/python-mypy.yml'
     
@@ -15,7 +15,7 @@ on:
         branches: [main]
         paths:
             - '**/*.py'
-            - 'pyproject.toml'
+            - 'python/pyproject.toml'
             - 'mypy.ini'
             - '.github/workflows/python-mypy.yml'
 
@@ -32,11 +32,22 @@ jobs:
               with:
                 python-version: '3.11'
 
-            - name: Install mypy
+            - name: Install dependencies
+              # Install the package in editable mode with all dev extras so that
+              # mypy can resolve every import at type-check time.  Installing via
+              # ".[dev]" is preferable to a hand-maintained list here because
+              # pyproject.toml is the single source of truth for dependencies.
+              working-directory: python
               run: |
                 python -m pip install --upgrade pip
-                pip install mypy numpy scipy scipy-stubs
+                pip install -e ".[dev]"
 
             - name: Run mypy
+              # Run from the python/ subdirectory so that mypy discovers
+              # pyproject.toml automatically (it walks up from the invocation
+              # directory).  Without this, the [[tool.mypy.overrides]] blocks
+              # that suppress import-not-found for qiskit* are silently ignored
+              # and every qiskit import is reported as an error.
+              working-directory: python
               run: |
-                mypy --strict python/src
+                mypy --strict src
