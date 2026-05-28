@@ -64,7 +64,7 @@ def build_single_qubit_gate_native(params: ModelParams) -> PauliEvolutionGate:
     x_op = SparsePauliOp("X")
     z_op = SparsePauliOp("Z")
     # SparsePauliOp arithmetic is not yet typed upstream; suppress the error.
-    h1: SparsePauliOp = params.ht * x_op + params.hl * z_op  # type: ignore[operator]
+    h1: SparsePauliOp = params.ht * x_op + params.hl * z_op  
     return PauliEvolutionGate(h1, time=params.dt)
 
 
@@ -95,7 +95,7 @@ def build_single_qubit_gate_decomposed(params: ModelParams) -> Instruction:
     theta_z = 2.0 * params.hl * params.dt
     circ.rx(theta_x, 0)
     circ.rz(theta_z, 0)
-    return circ.to_instruction()  # type: ignore[no-any-return]
+    return circ.to_instruction()  
 
 
 # ============================================================================
@@ -117,7 +117,7 @@ def build_two_qubit_gate_native(params: ModelParams) -> PauliEvolutionGate:
         A two-qubit ``PauliEvolutionGate`` for half a Trotter ZZ step.
     """
     zz_op = SparsePauliOp("ZZ")
-    h2: SparsePauliOp = params.J * zz_op  # type: ignore[operator]
+    h2: SparsePauliOp = params.J * zz_op  
     return PauliEvolutionGate(h2, time=0.5 * params.dt)
 
 
@@ -142,7 +142,7 @@ def build_two_qubit_gate_decomposed(params: ModelParams) -> Instruction:
     circ.cx(0, 1)
     circ.rz(-2.0 * gamma, 1)
     circ.cx(0, 1)
-    return circ.to_instruction()  # type: ignore[no-any-return]
+    return circ.to_instruction()  
 
 
 # ============================================================================
