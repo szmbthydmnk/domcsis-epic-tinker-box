@@ -97,6 +97,7 @@ dev = [
     "memory-profiler",
     "qiskit",
     "qiskit_aer",
+    "qiskit-ibm-runtime",
 ]
 
 
