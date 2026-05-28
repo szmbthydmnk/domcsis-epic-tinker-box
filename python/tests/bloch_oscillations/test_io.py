@@ -1,67 +1,96 @@
+"""
+Tests for bloch_oscillations.io.
+
+Verifies that simulation data survives a round-trip through
+``save_simulation_data`` / ``load_simulation_data``, and that the log
+header writer creates a file with the expected section markers.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
 import numpy as np
 import pytest
 
+from domcsis_epic_tinker_box.bloch_oscillations.model import ModelParams, RunConfig
 from domcsis_epic_tinker_box.bloch_oscillations.io import (
     save_simulation_data,
     load_simulation_data,
-    make_data_filename,
-    log_simulation_header,
-    append_layer_log,
+    write_log_header,
 )
-from domcsis_epic_tinker_box.bloch_oscillations.model import ModelParams, RunConfig
 
 
-@pytest.fixture
-def small_data():
-    params = ModelParams(L=3, layers_max=2)
+# ============================================================================
+# Fixtures
+# ============================================================================
+
+
+@pytest.fixture()
+def tmp_sim_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Change the working directory to a temporary path so file helpers
+    write to a controlled location that is cleaned up after each test."""
+    monkeypatch.chdir(tmp_path)
+    return tmp_path
+
+
+@pytest.fixture()
+def small_arrays() -> tuple[np.ndarray, np.ndarray]:
+    """Return small deterministic magnetisation and correlator arrays."""
+    rng = np.random.default_rng(42)
+    mags = rng.uniform(-1.0, 1.0, (4, 3))
+    corr = rng.uniform(-0.5, 0.5, (4, 3))
+    return mags, corr
+
+
+# ============================================================================
+# save / load round-trip
+# ============================================================================
+
+
+def test_round_trip_preserves_arrays(
+    tmp_sim_dir: Path,
+    small_arrays: tuple[np.ndarray, np.ndarray],
+) -> None:
+    """Data saved by save_simulation_data is recovered exactly by load."""
+    params = ModelParams(L=3, layers_max=4)
     config = RunConfig()
-    mags = np.array([[1.0, 0.0, -1.0], [0.5, 0.0, -0.5]])
-    corr = np.array([[0.0, 0.1, 0.0], [0.0, 0.2, 0.0]])
-    return params, config, mags, corr
+    mags, corr = small_arrays
+
+    path = save_simulation_data(params, config, mags, corr, "test_label")
+    assert path.exists()
+
+    mags_loaded, corr_loaded = load_simulation_data(path)
+
+    np.testing.assert_array_almost_equal(mags, mags_loaded)
+    np.testing.assert_array_almost_equal(corr, corr_loaded)
 
 
-def test_save_load_roundtrip(tmp_path, small_data):
-    params, config, mags, corr = small_data
-    filename = save_simulation_data(
-        params, config, mags, corr, "test_run", base_dir=tmp_path
-    )
-    mags_loaded, corr_loaded = load_simulation_data(filename)
-    np.testing.assert_allclose(mags_loaded, mags)
-    np.testing.assert_allclose(corr_loaded, corr)
+def test_load_raises_on_missing_file(tmp_sim_dir: Path) -> None:
+    """load_simulation_data raises FileNotFoundError for non-existent paths."""
+    with pytest.raises(FileNotFoundError):
+        load_simulation_data(tmp_sim_dir / "no_such_file.txt")
 
 
-def test_save_creates_file(tmp_path, small_data):
-    params, config, mags, corr = small_data
-    filename = save_simulation_data(
-        params, config, mags, corr, "test_run", base_dir=tmp_path
-    )
-    assert filename.exists()
-
-
-def test_make_data_filename_contains_params(tmp_path):
-    params = ModelParams(L=7, layers_max=40, J=0.25)
-    config = RunConfig()
-    filename = make_data_filename(params, config, "my_label", base_dir=tmp_path)
-    assert "N_7" in str(filename)
-    assert "layers_40" in str(filename)
-    assert "J_0.25" in str(filename)
-    assert "my_label" in str(filename)
-
-
-def test_load_invalid_file_raises(tmp_path):
-    bad_file = tmp_path / "bad.txt"
-    bad_file.write_text("no sections here")
-    with pytest.raises(ValueError, match="Could not find"):
+def test_load_raises_on_malformed_file(tmp_sim_dir: Path) -> None:
+    """load_simulation_data raises ValueError if section markers are absent."""
+    bad_file = tmp_sim_dir / "bad.txt"
+    bad_file.write_text("This file has no section markers.\n")
+    with pytest.raises(ValueError, match="Could not find section markers"):
         load_simulation_data(bad_file)
 
 
-def test_log_simulation_header_creates_file(tmp_path):
-    params = ModelParams(L=3, layers_max=2)
+# ============================================================================
+# Log header
+# ============================================================================
+
+
+def test_write_log_header_creates_file(tmp_sim_dir: Path) -> None:
+    """write_log_header creates the log file and returns its path."""
+    params = ModelParams(L=3, layers_max=4)
     config = RunConfig()
-    log_file = log_simulation_header(
-        params, config, "test_log", base_dir=tmp_path
-    )
-    assert log_file.exists()
-    content = log_file.read_text()
-    assert "Simulation configuration" in content
-    assert "Model parameters" in content
+    log_path = write_log_header(params, config, "test_log")
+    assert log_path.exists()
+
+
+def test_write_log_header_co

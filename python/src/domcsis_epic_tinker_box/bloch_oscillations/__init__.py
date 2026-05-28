@@ -1,6 +1,16 @@
+"""
+Public API for the bloch_oscillations subpackage.
+
+This module re-exports the symbols that external callers should use.
+Internal helpers (prefixed with ``_``) are intentionally excluded from
+the public surface; import them directly from their host module only
+when writing tests or extending the package.
+"""
+
+from __future__ import annotations
+
 from .model import ModelParams, RunConfig
 from .simulation import (
-    build_circuit_list,
     run_ideal_simulation_counts,
     run_ideal_simulation_observables,
     run_noisy_simulation_counts,
@@ -11,7 +21,6 @@ from .io import save_simulation_data, load_simulation_data
 __all__ = [
     "ModelParams",
     "RunConfig",
-    "build_circuit_list",
     "run_ideal_simulation_counts",
     "run_ideal_simulation_observables",
     "run_noisy_simulation_counts",
