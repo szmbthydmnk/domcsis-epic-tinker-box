@@ -126,11 +126,12 @@ where = ["src"]
 # from the python/ directory or when invoked in CI with "mypy python/src".
 #
 # "python_version": tells mypy which Python version's type rules to apply.
-#                   Set to 3.14 to match your local development environment.
-#                   Note: the GitHub Actions CI workflow uses Python 3.11,
-#                   so there is a slight mismatch. If mypy raises version-
-#                   specific issues in CI that do not reproduce locally,
-#                   aligning both to the same version is the fix.
+#                   Set to match the GitHub Actions CI Python version (3.11)
+#                   so that error codes, syntax rules, and available builtins
+#                   are consistent between local runs and CI.  A mismatch
+#                   (e.g. 3.14 locally vs 3.11 in CI) causes spurious
+#                   "unused type: ignore" errors because the set of error codes
+#                   that fire can differ between versions.
 #
 # "warn_unused_configs": if set to true, mypy warns you when a section of
 #                        this config file has no effect, for example if you
@@ -143,8 +144,41 @@ where = ["src"]
 # the option visible and easy to remove if needed.
 # -----------------------------------------------------------------------------
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.11"
 warn_unused_configs = true
+
+
+# -----------------------------------------------------------------------------
+# MYPY PER-MODULE OVERRIDES — third-party packages without type stubs
+# -----------------------------------------------------------------------------
+# qiskit, qiskit-aer, and qiskit-ibm-runtime ship no PEP 561 stubs and no
+# py.typed marker, so mypy raises [import-not-found] for every import from
+# these packages when running under --strict.
+#
+# The canonical fix is "ignore_missing_imports = true" scoped to those modules
+# via [[tool.mypy.overrides]] blocks.  This is strictly better than sprinkling
+# "# type: ignore[import-untyped]" comments throughout source files because:
+#   1. It is a single declaration in one place rather than per-import noise.
+#   2. It suppresses [import-not-found], not just [import-untyped], so the
+#      comments in source files do not become "unused ignore" errors.
+#   3. It survives stub additions: if a future qiskit release ships stubs,
+#      mypy will automatically start type-checking those imports and you can
+#      remove this override — source files need no edits.
+#
+# The wildcard "qiskit.*" / "qiskit_aer.*" / "qiskit_ibm_runtime.*" patterns
+# cover all sub-modules (e.g. qiskit.circuit, qiskit.quantum_info, …) with a
+# single entry.
+# -----------------------------------------------------------------------------
+[[tool.mypy.overrides]]
+module = [
+    "qiskit",
+    "qiskit.*",
+    "qiskit_aer",
+    "qiskit_aer.*",
+    "qiskit_ibm_runtime",
+    "qiskit_ibm_runtime.*",
+]
+ignore_missing_imports = true
 
 
 # -----------------------------------------------------------------------------
