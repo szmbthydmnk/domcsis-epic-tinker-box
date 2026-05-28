@@ -105,7 +105,7 @@ Derived quantities computed on demand:
 
 ### Number of Tests
 
-- Python tests: <!-- PYTHON_TESTS -->302 tests<!-- /PYTHON_TESTS -->
+- Python tests: <!-- PYTHON_TESTS -->344 tests<!-- /PYTHON_TESTS -->
 - Julia tests: <!-- JULIA_TESTS -->6 tests<!-- /JULIA_TESTS -->
 
 ### LOC metrics
