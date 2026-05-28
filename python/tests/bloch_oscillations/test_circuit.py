@@ -67,14 +67,14 @@ def test_two_qubit_decomposed_returns_instruction() -> None:
 def test_build_evolution_gates_native_u1_not_none() -> None:
     """When use_parallel_u1=False, U1 is not None."""
     config = RunConfig(use_parallel_u1=False)
-    u2, u1 = build_evolution_gates(_PARAMS, config)
+    _u2, u1 = build_evolution_gates(_PARAMS, config)
     assert u1 is not None
 
 
 def test_build_evolution_gates_parallel_u1_is_none() -> None:
     """When use_parallel_u1=True, U1 is None."""
     config = RunConfig(use_parallel_u1=True)
-    _, u1 = build_evolution_gates(_PARAMS, config)
+    _u2, u1 = build_evolution_gates(_PARAMS, config)
     assert u1 is None
 
 
@@ -119,8 +119,16 @@ def test_append_trotter_layer_all_methods_run(
     config = RunConfig(trotter_method=method, use_parallel_u1=False)
     u2, u1 = build_evolution_gates(_PARAMS, config)
     circ = init_circuit(_PARAMS, config)
-    # Should not raise.
     append_trotter_layer(circ, _PARAMS, config, u2, u1, layers=2, measure=True)
+    assert isinstance(circ, QuantumCircuit)
+
+
+def test_append_trotter_layer_parallel_u1_runs() -> None:
+    """Parallel U1 mode (u1=None) executes without error."""
+    config = RunConfig(trotter_method="even_odd", use_parallel_u1=True)
+    u2, u1 = build_evolution_gates(_PARAMS, config)
+    circ = init_circuit(_PARAMS, config)
+    append_trotter_layer(circ, _PARAMS, config, u2, u1, layers=1, measure=True)
     assert isinstance(circ, QuantumCircuit)
 
 
@@ -134,11 +142,11 @@ def test_append_trotter_layer_unknown_method_raises() -> None:
 
 
 def test_append_trotter_layer_barrier_count() -> None:
-    """One barrier is inserted per Trotter step."""
+    """Number of barriers equals the number of layers appended."""
+    layers = 3
     config = RunConfig(trotter_method="even_odd", use_parallel_u1=False)
     u2, u1 = build_evolution_gates(_PARAMS, config)
-    layers = 3
     circ = init_circuit(_PARAMS, config)
     append_trotter_layer(circ, _PARAMS, config, u2, u1, layers=layers, measure=False)
-    ops = dict(circ.count_ops())
-    assert ops.get("barrier", 0) == layers
+    barrier_count = dict(circ.count_ops()).get("barrier", 0)
+    assert barrier_count == layers

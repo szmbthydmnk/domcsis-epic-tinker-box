@@ -1,17 +1,15 @@
 """
-Observable builders for the Bloch-oscillations simulation.
+Observable construction for the Bloch-oscillations simulation.
 
-This module constructs the ``SparsePauliOp`` objects used to measure:
+This module builds the ``SparsePauliOp`` lists used to extract physical
+observables from the simulation output:
 
-* **Site magnetisations**  ⟨Z_j⟩  for each qubit ``j``.
-* **Connected two-point correlators**  ⟨Z_c Z_j⟩ − ⟨Z_c⟩⟨Z_j⟩  where
-  ``c`` is the centre site returned by :func:`~.model.center_index`.
+* **Site magnetisations** ⟨Z_j⟩ for j = 0, …, L-1.
+* **Connected two-point correlators** ⟨Z_c Z_j⟩ − ⟨Z_c⟩⟨Z_j⟩  where c is
+  the centre site index.
 
-Qiskit's ``SparsePauliOp`` uses a *little-endian* string convention: the
-rightmost character in the string corresponds to qubit 0.  The string
-construction here follows that convention explicitly.
-
-No I/O and no circuit construction live in this module.
+All functions are pure (no side effects, no I/O) and have no dependency on
+the Qiskit simulator stack beyond ``qiskit.quantum_info.SparsePauliOp``.
 """
 
 from __future__ import annotations
@@ -21,71 +19,52 @@ from qiskit.quantum_info import SparsePauliOp  # type: ignore[import-untyped]
 from .model import ModelParams, center_index
 
 
-# ============================================================================
-# Magnetisation observables
-# ============================================================================
-
-
 def magnetisation_observables(params: ModelParams) -> list[SparsePauliOp]:
-    """Build the list of single-site Z observables.
+    """Build one ``SparsePauliOp`` per site for measuring ⟨Z_j⟩.
 
-    Returns one ``SparsePauliOp`` per lattice site ``j``, representing the
-    Pauli-Z operator acting on site ``j`` and the identity on all other
-    sites.  The expectation value gives the local magnetisation ⟨Z_j⟩.
+    The observable for site *j* is the Pauli string with ``Z`` at position
+    *j* and ``I`` everywhere else.
 
     Args:
-        params: Model parameters (only ``L`` is used).
+        params: Model parameters providing the chain length ``L``.
 
     Returns:
-        A list of length ``L`` of ``SparsePauliOp`` objects, ordered by
-        site index (index 0 → leftmost qubit).
+        A list of ``L`` ``SparsePauliOp`` objects, one per site.
     """
     observables: list[SparsePauliOp] = []
-
-    for qubit in range(params.L):
-        # Start from an all-identity string of length L.
-        label = list("I" * params.L)
-        # Insert a Z at position ``qubit`` (0-indexed from the left).
-        label[qubit] = "Z"
-        observables.append(SparsePauliOp("".join(label)))
-
+    for j in range(params.L):
+        # Build 'I…IZI…I' with Z at position j.
+        chars = ["I"] * params.L
+        chars[j] = "Z"
+        observables.append(SparsePauliOp("".join(chars)))
     return observables
 
 
-# ============================================================================
-# Connected correlator observables
-# ============================================================================
-
-
 def correlator_observables(params: ModelParams) -> list[SparsePauliOp]:
-    """Build the list of two-site Z_c Z_j observables.
+    """Build one ``SparsePauliOp`` per site for measuring ⟨Z_c Z_j⟩.
 
-    Returns one ``SparsePauliOp`` per lattice site ``j``, representing the
-    product Z_c Z_j where ``c`` is the centre site.  When ``j == c`` the
-    product Z_c Z_c = I and the corresponding observable is all identities
-    (so that ``⟨Z_c Z_c⟩ − ⟨Z_c⟩² = 1 − ⟨Z_c⟩²`` simplifies correctly
-    in the post-processing step).
+    The observable for site *j* is the Pauli string with ``Z`` at both the
+    centre site *c* and position *j*.  At the centre site itself (j == c)
+    the product Z_c Z_c = I, so the observable collapses to the all-identity
+    string (expectation value ≡ 1 before subtracting the disconnected part).
+
+    The connected correlator is computed by the caller as::
+
+        corr_connected[j] = ⟨Z_c Z_j⟩ − ⟨Z_c⟩ · ⟨Z_j⟩
 
     Args:
-        params: Model parameters (only ``L`` is used).
+        params: Model parameters providing the chain length ``L``.
 
     Returns:
-        A list of length ``L`` of ``SparsePauliOp`` objects.
+        A list of ``L`` ``SparsePauliOp`` objects.
     """
-    c = center_index(params)  # Index of the centre (reference) site.
+    c = center_index(params)
     observables: list[SparsePauliOp] = []
-
-    for qubit in range(params.L):
-        if qubit == c:
-            # Z_c * Z_c = I  →  return the all-identity operator.
-            label = "I" * params.L
-        else:
-            # Place a Z at the centre and at qubit j.
-            chars = list("I" * params.L)
+    for j in range(params.L):
+        chars = ["I"] * params.L
+        if j != c:
             chars[c] = "Z"
-            chars[qubit] = "Z"
-            label = "".join(chars)
-
-        observables.append(SparsePauliOp(label))
-
+            chars[j] = "Z"
+        # When j == c: Z_c * Z_c = I, so chars stays all-'I'.
+        observables.append(SparsePauliOp("".join(chars)))
     return observables

@@ -20,6 +20,8 @@ Recognised ``fake_backend_name`` values (case-insensitive):
 
 from __future__ import annotations
 
+from typing import Any
+
 from qiskit_aer import AerSimulator  # type: ignore[import-untyped]
 from qiskit_aer.noise import NoiseModel  # type: ignore[import-untyped]
 
@@ -37,7 +39,7 @@ _FAKE_BACKEND_CANDIDATES: dict[str, list[str]] = {
 }
 
 
-def get_fake_backend(name: str) -> object:
+def get_fake_backend(name: str) -> Any:
     """Instantiate a fake IBM backend by human-readable name.
 
     Tries the ``V2`` class variant first, then falls back to the legacy
@@ -45,13 +47,16 @@ def get_fake_backend(name: str) -> object:
     set, and ``RuntimeError`` if none of the candidate class names can be
     found in the installed ``qiskit_ibm_runtime.fake_provider`` module.
 
+    The return type is ``Any`` because the concrete class varies with the
+    installed version of ``qiskit_ibm_runtime`` and carries no public type
+    stubs.  Callers that need a specific interface should cast the result.
+
     Args:
         name: Human-readable backend name (case-insensitive).  Recognised
               values: ``"brisbane"``, ``"sherbrooke"``, ``"almaden"``.
 
     Returns:
-        An instantiated fake backend object (concrete type varies by
-        installed ``qiskit_ibm_runtime`` version).
+        An instantiated fake backend object.
 
     Raises:
         ValueError:    If ``name`` is not a recognised fake backend.
@@ -60,7 +65,6 @@ def get_fake_backend(name: str) -> object:
     """
     from qiskit_ibm_runtime import fake_provider  # type: ignore[import-untyped]
 
-    # Normalise the name so callers are not case-sensitive.
     key = name.lower()
     if key not in _FAKE_BACKEND_CANDIDATES:
         raise ValueError(
@@ -68,8 +72,6 @@ def get_fake_backend(name: str) -> object:
             f"Supported values: {sorted(_FAKE_BACKEND_CANDIDATES)}"
         )
 
-    # Walk the candidate list; return the first class that exists in the
-    # installed version of qiskit_ibm_runtime.
     for cls_name in _FAKE_BACKEND_CANDIDATES[key]:
         cls = getattr(fake_provider, cls_name, None)
         if cls is not None:
@@ -86,7 +88,7 @@ def get_fake_backend(name: str) -> object:
 # ============================================================================
 
 
-def make_noisy_density_simulator(fake_backend: object) -> AerSimulator:
+def make_noisy_density_simulator(fake_backend: Any) -> AerSimulator:
     """Build an ``AerSimulator`` in density-matrix mode from a fake backend.
 
     The noise model is extracted from the fake backend using
@@ -97,15 +99,14 @@ def make_noisy_density_simulator(fake_backend: object) -> AerSimulator:
 
     Args:
         fake_backend: An instantiated fake backend object as returned by
-                      :func:`get_fake_backend`.
+                      :func:`get_fake_backend`.  Typed as ``Any`` because
+                      the concrete class carries no public stubs.
 
     Returns:
         An ``AerSimulator`` configured for density-matrix simulation with
         the noise model of the given fake backend.
     """
-    # Extract the noise model; AerSimulator accepts it as a constructor kwarg.
-    noise_model = NoiseModel.from_backend(fake_backend)  # type: ignore[arg-type]
-
+    noise_model = NoiseModel.from_backend(fake_backend)
     return AerSimulator(
         method="density_matrix",
         noise_model=noise_model,

@@ -33,6 +33,8 @@ of shape ``(layers_max, L)``.
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 from qiskit import transpile  # type: ignore[import-untyped]
 from qiskit.quantum_info import SparsePauliOp, Statevector, DensityMatrix  # type: ignore[import-untyped]
@@ -50,18 +52,18 @@ from .io import save_simulation_data, write_log_header, append_layer_log
 # ============================================================================
 
 
-def _extract_magnetisations_and_correlators_from_counts(
+def _extract_from_counts(
     counts: dict[str, int],
     shots: int,
     params: ModelParams,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray[Any, np.dtype[np.float64]], np.ndarray[Any, np.dtype[np.float64]]]:
     """Compute ⟨Z_j⟩ and connected correlators from a counts dictionary.
 
     Each bit-string in ``counts`` is interpreted as a computational-basis
     measurement outcome.  The convention used by Qiskit is *little-endian*:
     the leftmost character of the reversed string corresponds to qubit 0.
 
-    Bit value mapping:  ``'0'`` → +1,  ``'1'`` → −1.
+    Bit value mapping:  ``'0'`` → +1,  ``'1'`` − −1.
 
     Args:
         counts: Qiskit result counts dictionary mapping bit-strings to
@@ -77,25 +79,20 @@ def _extract_magnetisations_and_correlators_from_counts(
         averages.
     """
     c = center_index(params)
-    mags = np.zeros(params.L)
-    corr_raw = np.zeros(params.L)
+    mags: np.ndarray[Any, np.dtype[np.float64]] = np.zeros(params.L, dtype=np.float64)
+    corr_raw: np.ndarray[Any, np.dtype[np.float64]] = np.zeros(params.L, dtype=np.float64)
 
     for bitstring, n in counts.items():
-        # Reverse so that index 0 = qubit 0 (Qiskit little-endian convention).
         bits = bitstring[::-1]
-        # Map '0' → +1,  '1' → −1.
-        z = np.array([1 if b == "0" else -1 for b in bits[: params.L]])
-
+        z: np.ndarray[Any, np.dtype[np.float64]] = np.array(
+            [1.0 if b == "0" else -1.0 for b in bits[: params.L]], dtype=np.float64
+        )
         mags += n * z
         corr_raw += n * (z[c] * z)
 
-    # Normalise by the total shot count.
     mags /= shots
     corr_raw /= shots
-
-    # Subtract the disconnected part to obtain the connected correlator.
-    corr_connected = corr_raw - mags[c] * mags
-
+    corr_connected: np.ndarray[Any, np.dtype[np.float64]] = corr_raw - mags[c] * mags
     return mags, corr_connected
 
 
@@ -107,132 +104,113 @@ def _extract_magnetisations_and_correlators_from_counts(
 def run_ideal_simulation_counts(
     params: ModelParams,
     config: RunConfig,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Run an ideal (noiseless) Trotter simulation using measurement counts.
+) -> tuple[np.ndarray[Any, np.dtype[np.float64]], np.ndarray[Any, np.dtype[np.float64]]]:
+    """Run the ideal (noiseless) simulation and extract results from counts.
 
-    Builds one transpiled circuit for each Trotter depth from 0 to
-    ``params.layers_max - 1``, runs all circuits in a single batch job on
-    ``AerSimulator``, and post-processes the measurement bit-strings to
-    extract site magnetisations and connected correlators.
-
-    Args:
-        params: Physical model parameters.
-        config: Run configuration.  ``backend_mode`` is ignored; the
-                noiseless ``AerSimulator`` is always used.
-
-    Returns:
-        A tuple ``(magnetizations, correlators)`` where each element is a
-        2-D ``np.ndarray`` of shape ``(layers_max, L)``.
-    """
-    backend = AerSimulator()
-    u2, u1 = build_evolution_gates(params, config)
-
-    # ---- Build and transpile all circuits up-front ----
-    circuits = []
-    for layers in range(params.layers_max):
-        circ = init_circuit(params, config, with_classical=True)
-        append_trotter_layer(circ, params, config, u2, u1, layers, measure=True)
-        circuits.append(circ)
-
-    transpiled = transpile(
-        circuits,
-        backend=backend,
-        optimization_level=config.optimization_level,
-    )
-
-    # ---- Log circuit info for every layer ----
-    log_file = write_log_header(params, config, "ideal_counts")
-    for layer, circ in enumerate(transpiled):
-        append_layer_log(log_file, layer, circ, "ideal_counts")
-
-    # ---- Execute the whole batch in one shot ----
-    result = backend.run(transpiled, shots=config.shots).result()
-
-    # ---- Post-process each layer ----
-    magnetizations: list[np.ndarray] = []
-    correlators: list[np.ndarray] = []
-    c = center_index(params)
-
-    for layer in range(params.layers_max):
-        counts = result.get_counts(layer)
-        shots_total = sum(counts.values())
-        mags, corr = _extract_magnetisations_and_correlators_from_counts(
-            counts, shots_total, params
-        )
-        magnetizations.append(mags)
-        correlators.append(corr)
-
-    mag_array = np.array(magnetizations)
-    corr_array = np.array(correlators)
-
-    # Persist results to disk.
-    save_simulation_data(params, config, mag_array, corr_array, "ideal_counts")
-
-    return mag_array, corr_array
-
-
-def run_ideal_simulation_observables(
-    params: ModelParams,
-    config: RunConfig,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Run an ideal (noiseless) Trotter simulation using exact expectation values.
-
-    For each Trotter depth the circuit is transpiled to ``['cx', 'rz', 'sx',
-    'x']`` and then evaluated as a ``Statevector``.  This avoids shot noise
-    entirely at the cost of exponential memory in ``L``.
+    Builds one circuit per Trotter layer (0 … layers_max-1), transpiles
+    them, runs a single batched job on the noiseless ``AerSimulator``, and
+    post-processes each result's counts dictionary to extract site
+    magnetisations and connected correlators.
 
     Args:
         params: Physical model parameters.
         config: Run configuration.
 
     Returns:
-        A tuple ``(magnetizations, correlators)`` where each element is a
-        2-D ``np.ndarray`` of shape ``(layers_max, L)``.
+        A tuple ``(magnetizations, correlators)`` of shape
+        ``(layers_max, L)``.
     """
     u2, u1 = build_evolution_gates(params, config)
-    mag_obs = magnetisation_observables(params)
-    corr_obs = correlator_observables(params)
+    circuits = []
+
+    for layers in range(params.layers_max):
+        circ = init_circuit(params, config, with_classical=True)
+        append_trotter_layer(circ, params, config, u2, u1, layers=layers, measure=True)
+        circuits.append(circ)
+
+    backend: AerSimulator = AerSimulator()
+    transpiled = transpile(circuits, backend=backend, optimization_level=config.optimization_level)
+
+    log_file = write_log_header(params, config, "ideal_counts")
+    for layer, circuit in enumerate(transpiled):
+        append_layer_log(log_file, layer, circuit, "ideal_counts")
+
+    result = backend.run(transpiled, shots=config.shots).result()
+
+    magnetizations_list: list[np.ndarray[Any, np.dtype[np.float64]]] = []
+    correlators_list: list[np.ndarray[Any, np.dtype[np.float64]]] = []
+
+    for layer in range(params.layers_max):
+        counts: dict[str, int] = result.get_counts(layer)  # type: ignore[assignment]
+        shots = sum(counts.values())
+        mags, corr = _extract_from_counts(counts, shots, params)
+        magnetizations_list.append(mags)
+        correlators_list.append(corr)
+
+    magnetizations: np.ndarray[Any, np.dtype[np.float64]] = np.array(magnetizations_list)
+    correlators: np.ndarray[Any, np.dtype[np.float64]] = np.array(correlators_list)
+
+    save_simulation_data(params, config, magnetizations, correlators, "ideal_counts")
+    return magnetizations, correlators
+
+
+def run_ideal_simulation_observables(
+    params: ModelParams,
+    config: RunConfig,
+) -> tuple[np.ndarray[Any, np.dtype[np.float64]], np.ndarray[Any, np.dtype[np.float64]]]:
+    """Run the ideal simulation using exact statevector expectation values.
+
+    For each Trotter layer a circuit without measurement instructions is
+    transpiled, converted to a ``Statevector``, and queried for the
+    expectation value of each observable directly.  This avoids shot noise
+    and is suitable for benchmarking / reference data.
+
+    Args:
+        params: Physical model parameters.
+        config: Run configuration.
+
+    Returns:
+        A tuple ``(magnetizations, correlators)`` of shape
+        ``(layers_max, L)``.
+    """
+    u2, u1 = build_evolution_gates(params, config)
+    mag_obs: list[SparsePauliOp] = magnetisation_observables(params)
+    corr_obs: list[SparsePauliOp] = correlator_observables(params)
     c = center_index(params)
 
     log_file = write_log_header(params, config, "ideal_observables")
 
-    magnetizations: list[np.ndarray] = []
-    correlators: list[np.ndarray] = []
+    magnetizations_list: list[np.ndarray[Any, np.dtype[np.float64]]] = []
+    correlators_list: list[np.ndarray[Any, np.dtype[np.float64]]] = []
 
     for layers in range(params.layers_max):
-        # Build a measurement-free circuit for statevector evaluation.
         circ = init_circuit(params, config, with_classical=False)
-        append_trotter_layer(circ, params, config, u2, u1, layers, measure=False)
+        append_trotter_layer(circ, params, config, u2, u1, layers=layers, measure=False)
 
-        # Transpile to a standard basis for reproducible circuit structure.
-        transpiled = transpile(circ, basis_gates=["cx", "rz", "sx", "x"])
+        circ = transpile(circ, basis_gates=["cx", "rz", "sx", "x"])  # type: ignore[assignment]
 
-        append_layer_log(log_file, layers, transpiled, "ideal_observables")
+        append_layer_log(log_file, layers, circ, "ideal_observables")
 
-        # Evaluate the full statevector and compute exact expectations.
-        state = Statevector.from_instruction(transpiled)
+        state: Statevector = Statevector.from_instruction(circ)
 
-        mags = np.array(
-            [np.real(state.expectation_value(obs)) for obs in mag_obs]
+        mags: np.ndarray[Any, np.dtype[np.float64]] = np.array(
+            [np.real(state.expectation_value(obs)) for obs in mag_obs],
+            dtype=np.float64,
         )
-
-        # Raw ⟨Z_c Z_j⟩ from the tensor-product observable.
-        corr_raw = np.array(
-            [np.real(state.expectation_value(obs)) for obs in corr_obs]
+        corr_raw: np.ndarray[Any, np.dtype[np.float64]] = np.array(
+            [np.real(state.expectation_value(obs)) for obs in corr_obs],
+            dtype=np.float64,
         )
+        corr_connected: np.ndarray[Any, np.dtype[np.float64]] = corr_raw - mags[c] * mags
 
-        # Subtract the disconnected part ⟨Z_c⟩⟨Z_j⟩.
-        corr_connected = corr_raw - mags[c] * mags
+        magnetizations_list.append(mags)
+        correlators_list.append(corr_connected)
 
-        magnetizations.append(mags)
-        correlators.append(corr_connected)
+    magnetizations: np.ndarray[Any, np.dtype[np.float64]] = np.array(magnetizations_list)
+    correlators: np.ndarray[Any, np.dtype[np.float64]] = np.array(correlators_list)
 
-    mag_array = np.array(magnetizations)
-    corr_array = np.array(correlators)
-
-    save_simulation_data(params, config, mag_array, corr_array, "ideal_observables")
-
-    return mag_array, corr_array
+    save_simulation_data(params, config, magnetizations, correlators, "ideal_observables")
+    return magnetizations, correlators
 
 
 # ============================================================================
@@ -243,42 +221,34 @@ def run_ideal_simulation_observables(
 def run_noisy_simulation_counts(
     params: ModelParams,
     config: RunConfig,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Run a noisy Trotter simulation using measurement counts.
-
-    Constructs a density-matrix ``AerSimulator`` seeded from the noise model
-    of the fake backend specified in ``config.fake_backend_name``, then
-    follows the same batch-execution and count post-processing pipeline as
-    :func:`run_ideal_simulation_counts`.
+) -> tuple[np.ndarray[Any, np.dtype[np.float64]], np.ndarray[Any, np.dtype[np.float64]]]:
+    """Run the noisy simulation (density-matrix) and extract from counts.
 
     Args:
         params: Physical model parameters.
-        config: Run configuration.  ``fake_backend_name`` must be set.
+        config: Run configuration.  ``config.fake_backend_name`` must be set.
 
     Returns:
-        A tuple ``(magnetizations, correlators)`` where each element is a
-        2-D ``np.ndarray`` of shape ``(layers_max, L)``.
+        A tuple ``(magnetizations, correlators)`` of shape
+        ``(layers_max, L)``.
 
     Raises:
         ValueError: If ``config.fake_backend_name`` is ``None``.
     """
     if config.fake_backend_name is None:
         raise ValueError(
-            "config.fake_backend_name must be set for noisy simulations."
+            "fake_backend_name must be specified for noisy simulations."
         )
 
     fake_backend = get_fake_backend(config.fake_backend_name)
-    backend = make_noisy_density_simulator(fake_backend)
+    backend: AerSimulator = make_noisy_density_simulator(fake_backend)
+
     u2, u1 = build_evolution_gates(params, config)
-
-    label = f"noisy_counts_{config.fake_backend_name}"
-    log_file = write_log_header(params, config, label)
-
-    # ---- Build, transpile, and log circuits ----
     circuits = []
+
     for layers in range(params.layers_max):
         circ = init_circuit(params, config, with_classical=True)
-        append_trotter_layer(circ, params, config, u2, u1, layers, measure=True)
+        append_trotter_layer(circ, params, config, u2, u1, layers=layers, measure=True)
         circuits.append(circ)
 
     transpiled = transpile(
@@ -287,124 +257,111 @@ def run_noisy_simulation_counts(
         optimization_level=config.optimization_level,
     )
 
-    for layer, circ in enumerate(transpiled):
-        append_layer_log(log_file, layer, circ, "noisy_counts")
+    label = f"noisy_counts_{config.fake_backend_name}"
+    log_file = write_log_header(params, config, label)
+    for layer, circuit in enumerate(transpiled):
+        append_layer_log(log_file, layer, circuit, "noisy_counts")
 
-    # ---- Execute ----
     result = backend.run(transpiled, shots=config.shots).result()
 
-    # ---- Post-process ----
-    magnetizations: list[np.ndarray] = []
-    correlators: list[np.ndarray] = []
+    magnetizations_list: list[np.ndarray[Any, np.dtype[np.float64]]] = []
+    correlators_list: list[np.ndarray[Any, np.dtype[np.float64]]] = []
 
     for layer in range(params.layers_max):
-        counts = result.get_counts(layer)
-        shots_total = sum(counts.values())
-        mags, corr = _extract_magnetisations_and_correlators_from_counts(
-            counts, shots_total, params
-        )
-        magnetizations.append(mags)
-        correlators.append(corr)
+        counts: dict[str, int] = result.get_counts(layer)  # type: ignore[assignment]
+        shots = sum(counts.values())
+        mags, corr = _extract_from_counts(counts, shots, params)
+        magnetizations_list.append(mags)
+        correlators_list.append(corr)
 
-    mag_array = np.array(magnetizations)
-    corr_array = np.array(correlators)
+    magnetizations: np.ndarray[Any, np.dtype[np.float64]] = np.array(magnetizations_list)
+    correlators: np.ndarray[Any, np.dtype[np.float64]] = np.array(correlators_list)
 
-    save_simulation_data(params, config, mag_array, corr_array, label)
-
-    return mag_array, corr_array
+    save_simulation_data(params, config, magnetizations, correlators, label)
+    return magnetizations, correlators
 
 
 def run_noisy_simulation_observables(
     params: ModelParams,
     config: RunConfig,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Run a noisy Trotter simulation using density-matrix expectation values.
+) -> tuple[np.ndarray[Any, np.dtype[np.float64]], np.ndarray[Any, np.dtype[np.float64]]]:
+    """Run the noisy simulation using density-matrix expectation values.
 
-    For each Trotter depth a single circuit is transpiled onto the fake
-    backend's coupling map and noise model, then run with
-    ``save_density_matrix()`` to extract the full mixed state.  Physical
-    observables are mapped through ``apply_layout`` to account for qubit
-    remapping by the transpiler.
+    Transpiles each circuit to the fake backend's native gate set, saves
+    the density matrix explicitly, and queries it for observable expectation
+    values.  Qubit layout remapping is handled by
+    ``SparsePauliOp.apply_layout``.
 
     Args:
         params: Physical model parameters.
-        config: Run configuration.  ``fake_backend_name`` must be set.
+        config: Run configuration.  ``config.fake_backend_name`` must be set.
 
     Returns:
-        A tuple ``(magnetizations, correlators)`` where each element is a
-        2-D ``np.ndarray`` of shape ``(layers_max, L)``.
+        A tuple ``(magnetizations, correlators)`` of shape
+        ``(layers_max, L)``.
 
     Raises:
         ValueError: If ``config.fake_backend_name`` is ``None``.
     """
     if config.fake_backend_name is None:
         raise ValueError(
-            "config.fake_backend_name must be set for noisy simulations."
+            "fake_backend_name must be specified for noisy simulations."
         )
 
     fake_backend = get_fake_backend(config.fake_backend_name)
-    backend = make_noisy_density_simulator(fake_backend)
-    u2, u1 = build_evolution_gates(params, config)
+    backend: AerSimulator = make_noisy_density_simulator(fake_backend)
 
-    # Build *logical* observables once; they will be re-mapped per layer.
-    logical_mag_obs = magnetisation_observables(params)
-    logical_corr_obs = correlator_observables(params)
+    u2, u1 = build_evolution_gates(params, config)
+    logical_mag_obs: list[SparsePauliOp] = magnetisation_observables(params)
+    logical_corr_obs: list[SparsePauliOp] = correlator_observables(params)
     c = center_index(params)
 
     label = f"noisy_observables_{config.fake_backend_name}"
     log_file = write_log_header(params, config, label)
 
-    magnetizations: list[np.ndarray] = []
-    correlators: list[np.ndarray] = []
+    magnetizations_list: list[np.ndarray[Any, np.dtype[np.float64]]] = []
+    correlators_list: list[np.ndarray[Any, np.dtype[np.float64]]] = []
 
     for layers in range(params.layers_max):
-        # Build and transpile one measurement-free circuit per depth.
         circ = init_circuit(params, config, with_classical=False)
-        append_trotter_layer(circ, params, config, u2, u1, layers, measure=False)
+        append_trotter_layer(circ, params, config, u2, u1, layers=layers, measure=False)
 
-        transpiled = transpile(
+        circ = transpile(
             circ,
             backend=backend,
             optimization_level=config.optimization_level,
-        )
+        )  # type: ignore[assignment]
 
-        append_layer_log(log_file, layers, transpiled, "noisy_observables")
+        append_layer_log(log_file, layers, circ, "noisy_observables")
 
-        # Remap logical observables to the physical qubit layout chosen by
-        # the transpiler so that expectation values are computed on the
-        # correct physical qubits.
-        mag_obs = [
-            obs.apply_layout(transpiled.layout)
-            for obs in logical_mag_obs
+        # Remap logical observables to the physical qubit layout chosen by the
+        # transpiler.
+        mag_obs: list[SparsePauliOp] = [
+            obs.apply_layout(circ.layout) for obs in logical_mag_obs  # type: ignore[attr-defined]
         ]
-        corr_obs = [
-            obs.apply_layout(transpiled.layout)
-            for obs in logical_corr_obs
+        corr_obs: list[SparsePauliOp] = [
+            obs.apply_layout(circ.layout) for obs in logical_corr_obs  # type: ignore[attr-defined]
         ]
 
-        # Request that Aer saves the density matrix in the result data dict.
-        transpiled.save_density_matrix()
+        circ.save_density_matrix()  # type: ignore[attr-defined]
+        result = backend.run(circ).result()
+        rho: DensityMatrix = DensityMatrix(result.data(0)["density_matrix"])
 
-        result = backend.run(transpiled).result()
-        rho = DensityMatrix(result.data(0)["density_matrix"])
-
-        mags = np.array(
-            [np.real(rho.expectation_value(obs)) for obs in mag_obs]
+        mags: np.ndarray[Any, np.dtype[np.float64]] = np.array(
+            [np.real(rho.expectation_value(obs)) for obs in mag_obs],
+            dtype=np.float64,
         )
-
-        corr_raw = np.array(
-            [np.real(rho.expectation_value(obs)) for obs in corr_obs]
+        corr_raw: np.ndarray[Any, np.dtype[np.float64]] = np.array(
+            [np.real(rho.expectation_value(obs)) for obs in corr_obs],
+            dtype=np.float64,
         )
+        corr_connected: np.ndarray[Any, np.dtype[np.float64]] = corr_raw - mags[c] * mags
 
-        # Subtract the disconnected part ⟨Z_c⟩⟨Z_j⟩.
-        corr_connected = corr_raw - mags[c] * mags
+        magnetizations_list.append(mags)
+        correlators_list.append(corr_connected)
 
-        magnetizations.append(mags)
-        correlators.append(corr_connected)
+    magnetizations: np.ndarray[Any, np.dtype[np.float64]] = np.array(magnetizations_list)
+    correlators: np.ndarray[Any, np.dtype[np.float64]] = np.array(correlators_list)
 
-    mag_array = np.array(magnetizations)
-    corr_array = np.array(correlators)
-
-    save_simulation_data(params, config, mag_array, corr_array, label)
-
-    return mag_array, corr_array
+    save_simulation_data(params, config, magnetizations, correlators, label)
+    return magnetizations, correlators

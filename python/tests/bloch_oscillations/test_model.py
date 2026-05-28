@@ -7,6 +7,7 @@ and the ``center_index`` geometry helper for odd and even chain lengths.
 
 from __future__ import annotations
 
+import math
 from dataclasses import replace
 
 import pytest
@@ -91,18 +92,15 @@ class TestRunConfig:
 @pytest.mark.parametrize(
     ("L", "expected"),
     [
-        (7, 2),  # odd length: ceil(7/2 - 1) = ceil(2.5) = 3 → wait, re-check
-        (6, 2),  # even length: ceil(6/2 - 1) = ceil(2.0) = 2
-        (3, 0),  # minimal odd: ceil(3/2 - 1) = ceil(0.5) = 1 → re-check
-        (1, 0),  # single site: ceil(1/2 - 1) = ceil(-0.5) = 0
+        (7, 3),  # ceil(7/2 - 1) = ceil(3.5 - 1) = ceil(2.5) = 3
+        (6, 2),  # ceil(6/2 - 1) = ceil(3.0 - 1) = ceil(2.0) = 2
+        (3, 1),  # ceil(3/2 - 1) = ceil(1.5 - 1) = ceil(0.5) = 1
+        (1, 0),  # ceil(1/2 - 1) = ceil(0.5 - 1) = ceil(-0.5) = 0
     ],
 )
 def test_center_index(L: int, expected: int) -> None:
     """center_index reproduces the notebook's ceil(L/2 - 1) formula."""
-    import math
-
     p = ModelParams(L=L)
     result = center_index(p)
-    # Cross-check against the formula directly.
     assert result == math.ceil(L / 2 - 1)
     assert result == expected

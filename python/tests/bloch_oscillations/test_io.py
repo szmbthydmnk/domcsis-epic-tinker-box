@@ -35,11 +35,11 @@ def tmp_sim_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
 
 @pytest.fixture()
-def small_arrays() -> tuple[np.ndarray, np.ndarray]:
+def small_arrays() -> tuple[np.ndarray[object, np.dtype[np.float64]], np.ndarray[object, np.dtype[np.float64]]]:
     """Return small deterministic magnetisation and correlator arrays."""
     rng = np.random.default_rng(42)
-    mags = rng.uniform(-1.0, 1.0, (4, 3))
-    corr = rng.uniform(-0.5, 0.5, (4, 3))
+    mags = rng.uniform(-1.0, 1.0, (4, 3)).astype(np.float64)
+    corr = rng.uniform(-0.5, 0.5, (4, 3)).astype(np.float64)
     return mags, corr
 
 
@@ -50,7 +50,7 @@ def small_arrays() -> tuple[np.ndarray, np.ndarray]:
 
 def test_round_trip_preserves_arrays(
     tmp_sim_dir: Path,
-    small_arrays: tuple[np.ndarray, np.ndarray],
+    small_arrays: tuple[np.ndarray[object, np.dtype[np.float64]], np.ndarray[object, np.dtype[np.float64]]],
 ) -> None:
     """Data saved by save_simulation_data is recovered exactly by load."""
     params = ModelParams(L=3, layers_max=4)
@@ -93,4 +93,25 @@ def test_write_log_header_creates_file(tmp_sim_dir: Path) -> None:
     assert log_path.exists()
 
 
-def test_write_log_header_co
+def test_write_log_header_contains_section_markers(tmp_sim_dir: Path) -> None:
+    """write_log_header writes all expected section headers."""
+    params = ModelParams(L=3, layers_max=4)
+    config = RunConfig()
+    log_path = write_log_header(params, config, "test_log")
+    text = log_path.read_text()
+    assert "=== Simulation configuration ===" in text
+    assert "=== Circuit information ===" in text
+    assert "Model parameters:" in text
+    assert "Run configuration:" in text
+
+
+def test_write_log_header_records_param_values(tmp_sim_dir: Path) -> None:
+    """write_log_header embeds the actual parameter values in the log."""
+    params = ModelParams(L=5, layers_max=10, J=0.5)
+    config = RunConfig(trotter_method="zig_zag")
+    log_path = write_log_header(params, config, "param_check")
+    text = log_path.read_text()
+    assert "L: 5" in text
+    assert "layers_max: 10" in text
+    assert "J: 0.5" in text
+    assert "zig_zag" in text
