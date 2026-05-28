@@ -166,8 +166,8 @@ def load_simulation_data(filename: str | Path) -> tuple[np.ndarray, np.ndarray]:
     mag_lines = lines[mag_start : corr_start - 1]
     corr_lines = lines[corr_start:]
 
-    magnetizations = np.loadtxt(mag_lines)  # type: ignore[arg-type]
-    correlators = np.loadtxt(corr_lines)  # type: ignore[arg-type]
+    magnetizations = np.loadtxt(mag_lines)  
+    correlators = np.loadtxt(corr_lines)  
 
     return magnetizations, correlators
 
@@ -262,15 +262,15 @@ def append_layer_log(
         fh.write(
             f"{sim_type:>16} | "
             f"layer={layer:2d} | "
-            f"depth={circuit.depth():4d} | "  # type: ignore[attr-defined]
-            f"ops={dict(circuit.count_ops())}\n"  # type: ignore[attr-defined]
+            f"depth={circuit.depth():4d} | "  
+            f"ops={dict(circuit.count_ops())}\n"  
         )
         fh.write("\n")
         fh.write(f"--- Circuit layer {layer} ---\n")
 
         # Use Qiskit's text drawer with a generous line width so multi-qubit
         # connections are not broken across lines unnecessarily.
-        circuit_text = circuit.draw(output="text", fold=120, idle_wires=False)  # type: ignore[attr-defined]
+        circuit_text = circuit.draw(output="text", fold=120, idle_wires=False)  
         fh.write(str(circuit_text))
         fh.write("\n\n")
         fh.write("=" * 100)
