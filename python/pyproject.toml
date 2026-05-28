@@ -95,6 +95,8 @@ dev = [
     "ruff",
     "scipy-stubs",
     "memory-profiler",
+    "qiskit",
+    "qiskit_aer",
 ]
 
 
