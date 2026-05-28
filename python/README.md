@@ -105,7 +105,7 @@ Derived quantities computed on demand:
 
 ### Number of Tests
 
-- Python tests: <!-- PYTHON_TESTS -->293 tests<!-- /PYTHON_TESTS -->
+- Python tests: <!-- PYTHON_TESTS -->302 tests<!-- /PYTHON_TESTS -->
 - Julia tests: <!-- JULIA_TESTS -->6 tests<!-- /JULIA_TESTS -->
 
 ### LOC metrics
@@ -117,7 +117,7 @@ LOCo is lines of comments
 code share is LOC/(LOC + LOCo)
 ```
 
-- Python: <!-- PYTHON_METRIC -->2530 LOC, code share = 64.7%<!-- /PYTHON_METRIC -->
+- Python: <!-- PYTHON_METRIC -->2612 LOC, code share = 65.8%<!-- /PYTHON_METRIC -->
 - Julia: <!-- JULIA_METRIC -->36 LOC, code share = 97.3%<!-- /JULIA_METRIC -->
 
 ---
